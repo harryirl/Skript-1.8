@@ -39,6 +39,7 @@ import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.SoundCategory;
 import org.bukkit.World;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -861,18 +862,18 @@ public class BukkitClasses {
 					}
 					
 					@Override
-					public boolean canParse(ParseContext context) {
+					public boolean canParse(final ParseContext context) {
 						return context == ParseContext.COMMAND;
 					}
 					
 					@Override
-					public String toString(OfflinePlayer p, int flags) {
-						return p.getName() == null ? p.getUniqueId().toString() : p.getName();
+					public String toString(final OfflinePlayer p, final int flags) {
+						return "" + p.getName();
 					}
 					
 					@Override
-					public String toVariableNameString(OfflinePlayer p) {
-						if (SkriptConfig.usePlayerUUIDsInVariableNames.value() || p.getName() == null)
+					public String toVariableNameString(final OfflinePlayer p) {
+						if (SkriptConfig.usePlayerUUIDsInVariableNames.value())
 							return "" + p.getUniqueId();
 						else
 							return "" + p.getName();
@@ -887,10 +888,10 @@ public class BukkitClasses {
 					}
 					
 					@Override
-					public String getDebugMessage(OfflinePlayer p) {
+					public String getDebugMessage(final OfflinePlayer p) {
 						if (p.isOnline())
 							return Classes.getDebugMessage(p.getPlayer());
-						return toString(p, 0);
+						return "" + p.getName();
 					}
 				}).serializer(new Serializer<OfflinePlayer>() {
 					@Override
@@ -946,17 +947,11 @@ public class BukkitClasses {
 				.description("A player or the console.")
 				.usage("use <a href='expressions.html#LitConsole'>the console</a> for the console",
 						"see <a href='#player'>player</a> for players.")
-				.examples("command /push [&lt;player&gt;]:",
-						"\ttrigger:",
-						"\t\tif arg-1 is not set:",
-						"\t\t\tif command sender is console:",
-						"\t\t\t\tsend \"You can't push yourself as a console :\\\" to sender",
-						"\t\t\t\tstop",
-						"\t\t\tpush sender upwards with force 2",
-						"\t\t\tsend \"Yay!\"",
-						"\t\telse:",
-						"\t\t\tpush arg-1 upwards with force 2",
-						"\t\t\tsend \"Yay!\" to sender and arg-1")
+				.examples("on command /pm:",
+						"	command sender is not the console",
+						"	chance of 10%",
+						"	give coal to the player",
+						"	message \"You got a piece of coal for sending that PM!\"")
 				.since("1.0")
 				.defaultExpression(new EventValueExpression<>(CommandSender.class))
 				.parser(new Parser<CommandSender>() {
@@ -1981,12 +1976,12 @@ public class BukkitClasses {
 					public String toString(EnchantmentOffer eo, int flags) {
 						return EnchantmentType.toString(eo.getEnchantment(), flags) + " " + eo.getEnchantmentLevel();
 					}
-
+	
 					@Override
 					public String toVariableNameString(EnchantmentOffer eo) {
 						return "offer:" + EnchantmentType.toString(eo.getEnchantment()) + "=" + eo.getEnchantmentLevel();
 					}
-
+	
 					@Override
 					public String getVariableNamePattern() {
 						return ".+";

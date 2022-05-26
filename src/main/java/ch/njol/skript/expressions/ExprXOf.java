@@ -18,8 +18,13 @@
  */
 package ch.njol.skript.expressions;
 
+import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
+import org.eclipse.jdt.annotation.Nullable;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.classes.Converter;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -31,84 +36,84 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
-import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.Nullable;
 
+/**
+ * @author Peter Güttinger
+ */
 @Name("X of Item")
 @Description("An expression to be able to use a certain amount of items where the amount can be any expression. Please note that this expression is not stable and might be replaced in the future.")
 @Examples("give level of player of pickaxes to the player")
 @Since("1.2")
 public class ExprXOf extends PropertyExpression<Object, Object> {
-
 	static {
-		Skript.registerExpression(ExprXOf.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING, "%number% of %itemstacks/itemtypes/entitytype%");
+		Skript.registerExpression(ExprXOf.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING, "%number% of %itemstacks/entitytype%");
 	}
-
-	@SuppressWarnings("NotNullFieldNotInitialized")
-	private Expression<Number> amount;
-
+	
+	@SuppressWarnings("null")
+	Expression<Number> amount;
+	
+	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	@SuppressWarnings("unchecked")
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
 		setExpr(exprs[1]);
 		amount = (Expression<Number>) exprs[0];
-		// "x of y" is also an ItemType syntax
-		return !(amount instanceof Literal) || !(getExpr() instanceof Literal);
+		if (amount instanceof Literal && getExpr() instanceof Literal)// "x of y" is also an ItemType syntax
+			return false;
+		return true;
 	}
-
+	
 	@Override
-	protected Object[] get(Event e, Object[] source) {
-		Number a = amount.getSingle(e);
-		if (a == null)
-			return new Object[0];
-
-		return get(source, o -> {
-			if (o instanceof ItemStack) {
-				ItemStack is = ((ItemStack) o).clone();
-				is.setAmount(a.intValue());
-				return is;
-			} else if (o instanceof ItemType) {
-				ItemType type = ((ItemType) o).clone();
-				type.setAmount(a.intValue());
-				return type;
-			} else {
-				EntityType t = ((EntityType) o).clone();
-				t.amount = a.intValue();
-				return t;
+	public Class<? extends Object> getReturnType() {
+		return getExpr().getReturnType();
+	}
+	
+	@Override
+	protected Object[] get(final Event e, final Object[] source) {
+		return get(source, new Converter<Object, Object>() {
+			@Override
+			@Nullable
+			public Object convert(final Object o) {
+				final Number a = amount.getSingle(e);
+				if (a == null)
+					return null;
+				if (o instanceof ItemStack) {
+					final ItemStack is = ((ItemStack) o).clone();
+					is.setAmount(a.intValue());
+					return is;
+				} else if (o instanceof ItemType) {
+					ItemType type = ((ItemType) o).clone();
+					type.setAmount(a.intValue());
+					return type;
+				} else {
+					final EntityType t = ((EntityType) o).clone();
+					t.amount = a.intValue();
+					return t;
+				}
 			}
 		});
 	}
-
+	
+	@SuppressWarnings("unchecked")
 	@Override
 	@Nullable
-	@SuppressWarnings("unchecked")
 	public <R> Expression<? extends R> getConvertedExpression(Class<R>... to) {
-		if (CollectionUtils.containsSuperclass(to, getReturnType()))
-			return (Expression<? extends R>) this;
-
-		if (!CollectionUtils.containsAnySuperclass(to, ItemStack.class, ItemType.class, EntityType.class))
-			return null;
-
+		// Make sure we get converted expression from Variables etc. correctly
+		// Then, wrap it so that our 'X' is properly applied
+		// See #1747 for issue that was caused by failure to do this
+		
 		Expression<? extends R> converted = getExpr().getConvertedExpression(to);
-		if (converted == null)
+		if (converted == null) // Can't create converted expression
 			return null;
-
-		ExprXOf exprXOf = new ExprXOf();
-		exprXOf.setExpr(converted);
-		exprXOf.amount = amount;
-		return (Expression<? extends R>) exprXOf;
+		
+		ExprXOf wrapped = new ExprXOf();
+		wrapped.setExpr(converted);
+		wrapped.amount = amount;
+		return (Expression<? extends R>) wrapped;
 	}
-
+	
 	@Override
-	public Class<?> getReturnType() {
-		return getExpr().getReturnType();
-	}
-
-	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(final @Nullable Event e, final boolean debug) {
 		return amount.toString(e, debug) + " of " + getExpr().toString(e, debug);
 	}
-
+	
 }

@@ -18,11 +18,9 @@
  */
 package ch.njol.skript.util;
 
-import ch.njol.skript.aliases.ItemData;
+import java.util.Arrays;
+
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.bukkitutil.block.BlockCompat;
-import ch.njol.skript.bukkitutil.block.BlockSetter;
-import ch.njol.skript.bukkitutil.block.BlockValues;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -32,12 +30,17 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.util.Arrays;
+import ch.njol.skript.aliases.ItemData;
+import ch.njol.skript.bukkitutil.block.BlockCompat;
+import ch.njol.skript.bukkitutil.block.BlockSetter;
+import ch.njol.skript.bukkitutil.block.BlockValues;
 
 /**
  * TODO !Update with every version [blocks] - also update aliases-*.sk
+ * 
+ * @author Peter Güttinger
  */
-public class BlockUtils {
+public abstract class BlockUtils {
 	
 	/**
 	 * Sets the given block.
@@ -52,7 +55,8 @@ public class BlockUtils {
 		if (applyPhysics)
 			flags |= BlockSetter.APPLY_PHYSICS;
 		BlockCompat.SETTER.setBlock(block, type, blockValues, flags);
-
+		
+		
 		return true;
 	}
 	
@@ -65,7 +69,7 @@ public class BlockUtils {
 	}
 	
 	@SuppressWarnings("null")
-	public static Iterable<Block> getBlocksAround(Block b) {
+	public static Iterable<Block> getBlocksAround(final Block b) {
 		return Arrays.asList(b.getRelative(BlockFace.NORTH), b.getRelative(BlockFace.EAST), b.getRelative(BlockFace.SOUTH), b.getRelative(BlockFace.WEST));
 	}
 	
@@ -79,15 +83,17 @@ public class BlockUtils {
 	 * @return Location of the block, including its direction
 	 */
 	@Nullable
-	public static Location getLocation(@Nullable Block b) {
+	public static Location getLocation(final @Nullable Block b) {
 		if (b == null)
 			return null;
-		Location l = b.getLocation().add(0.5, 0.5, 0.5);
-		BlockFace blockFace = Direction.getFacing(b);
-		if (blockFace != BlockFace.SELF) {
-			l.setPitch(Direction.getPitch(Math.sin(blockFace.getModY())));
-			l.setYaw(Direction.getYaw(Math.atan2(blockFace.getModZ(), blockFace.getModX())));
-		}
+		final Location l = b.getLocation().add(0.5, 0.5, 0.5);
+//		final Material m = b.getType();
+//		if (Directional.class.isAssignableFrom(m.getData())) {
+//			final BlockFace f = ((Directional) m.getNewData(b.getData())).getFacing();
+//			l.setPitch(Direction.getPitch(Math.sin(f.getModY())));
+//			l.setYaw(Direction.getYaw(Math.atan2(f.getModZ(), f.getModX())));
+//		}
+		// TODO figure out what this code means
 		return l;
 	}
 	

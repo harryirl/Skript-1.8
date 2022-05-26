@@ -41,14 +41,13 @@ public abstract class StringUtils {
 	 * @param i the number
 	 * @return 1st, 2nd, 3rd, 4th, etc.
 	 */
-	public static String fancyOrderNumber(int i) {
-		int iModTen = i % 10;
-		int iModHundred = i % 100;
-		if (iModTen == 1 && iModHundred != 11)
+	public static String fancyOrderNumber(final int i) {
+		final int imod10 = i % 10;
+		if (imod10 == 1)
 			return i + "st";
-		if (iModTen == 2 && iModHundred != 12)
+		if (imod10 == 2)
 			return i + "nd";
-		if (iModTen == 3 && iModHundred != 13)
+		if (imod10 == 3)
 			return i + "rd";
 		return i + "th";
 	}
