@@ -55,7 +55,7 @@ public class BoatData extends EntityData<Boat> {
 	@Override
 	protected boolean init(@Nullable Class<? extends Boat> c, @Nullable Boat e) {
 		if (e != null)
-			matchedPattern = 2;
+			matchedPattern = 2 + e.getWoodType().ordinal();
 		return true;
 	}
 
