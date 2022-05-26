@@ -151,7 +151,9 @@ public class EvtItem extends SkriptEvent {
 		} else if (e instanceof CraftItemEvent) {
 			is = ((CraftItemEvent) e).getRecipe().getResult();
 		} else if (hasPrepareCraftEvent && e instanceof PrepareItemCraftEvent) {
-			is = ((PrepareItemCraftEvent) e).getRecipe().getResult();;
+			is = ((PrepareItemCraftEvent) e).getRecipe().getResult();
+		} else if (e instanceof EntityPickupItemEvent) {
+			is = ((EntityPickupItemEvent) e).getItem().getItemStack();
 		} else if (e instanceof PlayerPickupItemEvent) {
 			is = ((PlayerPickupItemEvent) e).getItem().getItemStack();
 		} else if (hasConsumeEvent && e instanceof PlayerItemConsumeEvent) {
