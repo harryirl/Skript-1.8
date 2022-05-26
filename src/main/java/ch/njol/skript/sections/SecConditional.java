@@ -74,7 +74,6 @@ public class SecConditional extends Section {
 
 			// Change event if using 'parse if'
 			if (parseIf) {
-				//noinspection unchecked
 				parser.setCurrentEvents(new Class[]{SkriptParseEvent.class});
 				parser.setCurrentEventName("parse");
 				parser.setCurrentSkriptEvent(null);
@@ -126,8 +125,8 @@ public class SecConditional extends Section {
 		if (type == ConditionalType.ELSE) {
 			// In an else section, ...
 			if (hasDelayAfter.isTrue()
-				&& lastIf.hasDelayAfter.isTrue()
-				&& getElseIfs(triggerItems).stream().map(SecConditional::getHasDelayAfter).allMatch(Kleenean::isTrue)) {
+					&& lastIf.hasDelayAfter.isTrue()
+					&& getElseIfs(triggerItems).stream().map(SecConditional::getHasDelayAfter).allMatch(Kleenean::isTrue)) {
 				// ... if the if section, all else-if sections and the else section have definite delays,
 				//  mark delayed as TRUE.
 				getParser().setHasDelayBefore(Kleenean.TRUE);
@@ -146,39 +145,25 @@ public class SecConditional extends Section {
 		return true;
 	}
 
-	@Override
-	@Nullable
-	public TriggerItem getNext() {
-		return getSkippedNext();
-	}
-
-	@Nullable
-	public TriggerItem getNormalNext() {
-		return super.getNext();
-	}
-
 	@Nullable
 	@Override
 	protected TriggerItem walk(Event e) {
 		if (parseIf && !parseIfPassed) {
-			return getNormalNext();
+			return getNext();
 		} else if (type == ConditionalType.ELSE || parseIf || condition.check(e)) {
-			TriggerItem skippedNext = getSkippedNext();
-			setNext(skippedNext);
-
 			if (last != null)
-				last.setNext(skippedNext);
-			return first != null ? first : skippedNext;
+				last.setNext(getSkippedNext());
+			return first != null ? first : getSkippedNext();
 		} else {
-			return getNormalNext();
+			return getNext();
 		}
 	}
 
 	@Nullable
 	private TriggerItem getSkippedNext() {
-		TriggerItem next = getNormalNext();
+		TriggerItem next = getNext();
 		while (next instanceof SecConditional && ((SecConditional) next).type != ConditionalType.IF)
-			next = ((SecConditional) next).getNormalNext();
+			next = next.getNext();
 		return next;
 	}
 
