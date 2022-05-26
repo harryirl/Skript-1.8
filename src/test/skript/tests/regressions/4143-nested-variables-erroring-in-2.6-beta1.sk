@@ -1,3 +1,6 @@
+on load:
+	suppress conflict warnings
+
 test "nested variable parsing":
 	delete {_a}
 	delete {_a%{b}%}
