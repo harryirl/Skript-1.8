@@ -209,30 +209,26 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 				i.setItemMeta(m);
 			} else if (o instanceof Inventory) {
 				Inventory inv = (Inventory) o;
-				
+
 				if (inv.getViewers().isEmpty())
 					return;
 				// Create a clone to avoid a ConcurrentModificationException
 				List<HumanEntity> viewers = new ArrayList<>(inv.getViewers());
-				
+
 				InventoryType type = inv.getType();
-				
+				if (!type.isCreatable())
+					return;
 				if (name == null)
 					name = type.getDefaultTitle();
-				
-				try {
-					Inventory copy;
-					if (type == InventoryType.CHEST) {
-						copy = Bukkit.createInventory(inv.getHolder(), inv.getSize(), name);
-					} else {
-						copy = Bukkit.createInventory(inv.getHolder(), type, name);
-					}
-					copy.setContents(inv.getContents());
-					viewers.forEach(viewer -> viewer.openInventory(copy));
-				} catch (IllegalArgumentException ignored) {
-					return;
+
+				Inventory copy;
+				if (type == InventoryType.CHEST) {
+					copy = Bukkit.createInventory(inv.getHolder(), inv.getSize(), name);
+				} else {
+					copy = Bukkit.createInventory(inv.getHolder(), type, name);
 				}
-				
+				copy.setContents(inv.getContents());
+				viewers.forEach(viewer -> viewer.openInventory(copy));
 			} else if (o instanceof Slot) {
 				Slot s = (Slot) o;
 				ItemStack is = s.getItem();
