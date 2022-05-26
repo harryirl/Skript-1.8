@@ -60,7 +60,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * @author Peter Güttinger
@@ -76,9 +75,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	
 	// must be here to be initialised before 'new SimpleLiteral' is called in the register block below
 	private final static List<EntityDataInfo<EntityData<?>>> infos = new ArrayList<>();
-
-	private static final Pattern REGEX_PATTERN = Pattern.compile("[a-zA-Z -]+");
-
+	
 	public static Serializer<EntityData> serializer = new Serializer<EntityData>() {
 		@Override
 		public Fields serialize(final EntityData o) throws NotSerializableException {
@@ -381,7 +378,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Prints errors.
 	 * 
@@ -390,10 +387,8 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 */
 	@SuppressWarnings("null")
 	@Nullable
-	public static EntityData<?> parse(String s) {
-		if (!REGEX_PATTERN.matcher(s).matches())
-			return null;
-		Iterator<EntityDataInfo<EntityData<?>>> it = infos.iterator();
+	public static EntityData<?> parse(final String s) {
+		final Iterator<EntityDataInfo<EntityData<?>>> it = infos.iterator();
 		return SkriptParser.parseStatic(Noun.stripIndefiniteArticle(s), it, null);
 	}
 	
@@ -405,10 +400,8 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 */
 	@SuppressWarnings("null")
 	@Nullable
-	public static EntityData<?> parseWithoutIndefiniteArticle(String s) {
-		if (!REGEX_PATTERN.matcher(s).matches())
-			return null;
-		Iterator<EntityDataInfo<EntityData<?>>> it = infos.iterator();
+	public static EntityData<?> parseWithoutIndefiniteArticle(final String s) {
+		final Iterator<EntityDataInfo<EntityData<?>>> it = infos.iterator();
 		return SkriptParser.parseStatic(s, it, null);
 	}
 	

@@ -33,7 +33,7 @@ import org.bukkit.entity.Entity;
 		"player is in lava:",
 		"player is in bubble column"})
 @RequiredPlugins("Minecraft 1.16+ (in water), Paper 1.16+ (in rain, lava and bubble column)")
-@Since("2.6.1")
+@Since("INSERT VERSION")
 public class CondEntityIsInLiquid extends PropertyCondition<Entity> {
 	
 	static {

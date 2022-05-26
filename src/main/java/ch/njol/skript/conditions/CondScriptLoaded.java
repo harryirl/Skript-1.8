@@ -20,7 +20,6 @@ package ch.njol.skript.conditions;
 
 import java.io.File;
 
-import ch.njol.skript.config.Config;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -33,7 +32,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 
 @Name("Is Script Loaded")
@@ -53,27 +52,21 @@ public class CondScriptLoaded extends Condition {
 	@Nullable
 	private File currentScriptFile;
 	
-	@Override
 	@SuppressWarnings({"unchecked"})
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+	@Override
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
 		scripts = (Expression<String>) exprs[0];
 		setNegated(matchedPattern == 1);
-		Config cs = getParser().getCurrentScript();
-		if (cs == null && scripts == null) {
-			Skript.error("The condition 'script loaded' requires a script name argument when used outside of script files");
-			return false;
-		} else if (cs != null) {
-			currentScriptFile = cs.getFile();
-		}
+		assert getParser().getCurrentScript() != null;
+		currentScriptFile = getParser().getCurrentScript().getFile();
 		return true;
 	}
-
+	
 	@Override
 	public boolean check(Event e) {
+		Expression<String> scripts = this.scripts;
 		if (scripts == null) {
-			if (currentScriptFile == null)
-				return isNegated();
-			return ScriptLoader.getLoadedFiles().contains(currentScriptFile) ^ isNegated();
+			return ScriptLoader.getLoadedFiles().contains(currentScriptFile);
 		}
 		
 		return scripts.check(e,
@@ -83,8 +76,9 @@ public class CondScriptLoaded extends Condition {
 	
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
+		Expression<String> scripts = this.scripts;
+		
 		String scriptName;
-
 		if (scripts == null)
 			scriptName = "script";
 		else
