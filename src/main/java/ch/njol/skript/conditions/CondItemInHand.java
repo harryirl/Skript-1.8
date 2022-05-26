@@ -46,24 +46,43 @@ import ch.njol.util.Kleenean;
 public class CondItemInHand extends Condition {
 	
 	static {
-		Skript.registerCondition(CondItemInHand.class,
-			"[%livingentities%] ha(s|ve) %itemtypes% [in hand]",
-			"[%livingentities%] (is|are) holding %itemtypes% [in hand]",
-			"[%livingentities%] (ha(s|ve) not|do[es]n't have) %itemtypes%",
-			"[%livingentities%] (is not|isn't) holding %itemtypes% [in hand]");
+		if (Skript.isRunningMinecraft(1, 9)) {
+			Skript.registerCondition(CondItemInHand.class,
+					"[%livingentities%] ha(s|ve) %itemtypes% in [main] hand",
+					"[%livingentities%] (is|are) holding %itemtypes% [in main hand]",
+					"[%livingentities%] ha(s|ve) %itemtypes% in off[(-| )]hand",
+					"[%livingentities%] (is|are) holding %itemtypes% in off[(-| )]hand",
+					"[%livingentities%] (ha(s|ve) not|do[es]n't have) %itemtypes% in [main] hand",
+					"[%livingentities%] (is not|isn't) holding %itemtypes% [in main hand]",
+					"[%livingentities%] (ha(s|ve) not|do[es]n't have) %itemtypes% in off[(-| )]hand",
+					"[%livingentities%] (is not|isn't) holding %itemtypes% in off[(-| )]hand");
+		} else {
+			Skript.registerCondition(CondItemInHand.class,
+					"[%livingentities%] ha(s|ve) %itemtypes% in hand",
+					"[%livingentities%] (is|are) holding %itemtypes% in hand",
+					"[%livingentities%] (ha(s|ve) not|do[es]n't have) %itemtypes%",
+					"[%livingentities%] (is not|isn't) holding %itemtypes%");
+		}
 	}
 	
 	@SuppressWarnings("null")
 	private Expression<LivingEntity> entities;
 	@SuppressWarnings("null")
 	private Expression<ItemType> types;
+	private boolean offTool;
 	
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
 		entities = (Expression<LivingEntity>) exprs[0];
 		types = (Expression<ItemType>) exprs[1];
-		setNegated(matchedPattern >= 2);
+		if (Skript.isRunningMinecraft(1, 9)) {
+			offTool = (matchedPattern == 2 || matchedPattern == 3 || matchedPattern == 6 || matchedPattern == 7);
+			setNegated(matchedPattern >= 4);
+		} else {
+			offTool = false;
+			setNegated(matchedPattern >= 2);
+		}
 		return true;
 	}
 	
@@ -73,13 +92,23 @@ public class CondItemInHand extends Condition {
 				en -> types.check(e,
 						type -> {
 							EntityEquipment equipment = en.getEquipment();
-							return equipment != null && type.isOfType(equipment.getItemInHand());
+							if (equipment == null)
+								return false; // No equipment -> no item in hand
+							
+							if (Skript.isRunningMinecraft(1, 9)) {
+								return (offTool ? type.isOfType(equipment.getItemInOffHand()) : type.isOfType(equipment.getItemInMainHand()));
+							} else {
+								@SuppressWarnings("deprecation")
+								ItemStack itemInHand = equipment.getItemInHand();
+								
+								return type.isOfType(itemInHand);
+							}
 						}), isNegated());
 	}
 	
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
-		return entities.toString(e, debug) + " " + (entities.isSingle() ? "is" : "are") + " holding " + types.toString(e, debug);
+		return entities.toString(e, debug) + " " + (entities.isSingle() ? "is" : "are") + " holding " + types.toString(e, debug) + (offTool ? " in off-hand" : "");
 	}
 	
 }
