@@ -18,14 +18,16 @@
  */
 package ch.njol.skript.log;
 
+import java.util.logging.Level;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.util.logging.Level;
-
 /**
  * Redirects the log to a {@link CommandSender}.
+ * 
+ * @author Peter Güttinger
  */
 public class RedirectingLogHandler extends LogHandler {
 	
@@ -44,9 +46,9 @@ public class RedirectingLogHandler extends LogHandler {
 	@Override
 	public LogResult log(LogEntry entry) {
 		if (recipient != null)
-			recipient.sendMessage(prefix + entry.toFormattedString());
+			recipient.sendMessage(prefix + entry);
 		else
-			SkriptLogger.LOGGER.log(entry.getLevel(), prefix + entry.toFormattedString());
+			SkriptLogger.LOGGER.log(entry.getLevel(), prefix + entry);
 		if (entry.level == Level.SEVERE)
 			numErrors++;
 		return LogResult.DO_NOT_LOG;
@@ -60,5 +62,5 @@ public class RedirectingLogHandler extends LogHandler {
 	public int numErrors() {
 		return numErrors;
 	}
-
+	
 }

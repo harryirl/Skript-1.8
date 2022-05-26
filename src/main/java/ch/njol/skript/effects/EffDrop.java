@@ -27,7 +27,6 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.sections.EffSecSpawn;
 import ch.njol.skript.util.Direction;
 import ch.njol.skript.util.Experience;
 import ch.njol.util.Kleenean;
@@ -80,12 +79,12 @@ public class EffDrop extends Effect {
 				if (o instanceof Experience) {
 					ExperienceOrb orb = l.getWorld().spawn(l, ExperienceOrb.class);
 					orb.setExperience(((Experience) o).getXP());
-					EffSecSpawn.lastSpawned = orb;
+					EffSpawn.lastSpawned = orb;
 				} else {
 					if (o instanceof ItemStack)
 						o = new ItemType((ItemStack) o);
 					for (ItemStack is : ((ItemType) o).getItem().getAll()) {
-						if (is.getType() != Material.AIR && is.getAmount() > 0) {
+						if (is.getType() != Material.AIR) {
 							if (useVelocity) {
 								lastSpawned = l.getWorld().dropItemNaturally(itemDropLoc, is);
 							} else {

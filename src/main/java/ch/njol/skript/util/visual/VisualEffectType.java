@@ -113,10 +113,17 @@ public class VisualEffectType {
 		VisualEffectType type = new VisualEffectType(effect);
 		String node = LANGUAGE_NODE + "." + type.getId();
 
-		if (!Language.keyExistsDefault(node + ".pattern"))
-			return null;
+		String pattern;
 
-		String pattern = Language.get(node + ".pattern");
+		BlockingLogHandler logHandler = SkriptLogger.startLogHandler(new BlockingLogHandler());
+		try {
+			pattern = Language.get_(node + ".pattern");
+		} finally {
+			logHandler.stop();
+		}
+
+		if (pattern == null)
+			return null;
 
 		type.name = new Noun(node + ".name");
 

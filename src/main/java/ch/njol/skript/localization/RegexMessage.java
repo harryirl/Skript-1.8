@@ -42,24 +42,24 @@ public class RegexMessage extends Message {
 	 * A pattern that doesn't match anything
 	 */
 	@SuppressWarnings("null")
-	public static final Pattern nop = Pattern.compile("(?!)");
+	public final static Pattern nop = Pattern.compile("(?!)");
 	
-	public RegexMessage(String key, @Nullable String prefix, @Nullable String suffix, int flags) {
+	public RegexMessage(final String key, final @Nullable String prefix, final @Nullable String suffix, final int flags) {
 		super(key);
 		this.prefix = prefix == null ? "" : prefix;
 		this.suffix = suffix == null ? "" : suffix;
 		this.flags = flags;
 	}
 	
-	public RegexMessage(String key, String prefix, String suffix) {
+	public RegexMessage(final String key, final String prefix, final String suffix) {
 		this(key, prefix, suffix, 0);
 	}
 	
-	public RegexMessage(String key, int flags) {
+	public RegexMessage(final String key, final int flags) {
 		this(key, "", "", flags);
 	}
 	
-	public RegexMessage(String key) {
+	public RegexMessage(final String key) {
 		this(key, "", "", 0);
 	}
 	
@@ -70,18 +70,18 @@ public class RegexMessage extends Message {
 	}
 	
 	@SuppressWarnings("null")
-	public Matcher matcher(String s) {
-		Pattern p = getPattern();
+	public Matcher matcher(final String s) {
+		final Pattern p = getPattern();
 		return p == null ? nop.matcher(s) : p.matcher(s);
 	}
 	
-	public boolean matches(String s) {
-		Pattern p = getPattern();
+	public boolean matches(final String s) {
+		final Pattern p = getPattern();
 		return p == null ? false : p.matcher(s).matches();
 	}
 	
-	public boolean find(String s) {
-		Pattern p = getPattern();
+	public boolean find(final String s) {
+		final Pattern p = getPattern();
 		return p == null ? false : p.matcher(s).find();
 	}
 	
@@ -95,7 +95,7 @@ public class RegexMessage extends Message {
 	protected void onValueChange() {
 		try {
 			pattern = Pattern.compile(prefix + getValue() + suffix, flags);
-		} catch (PatternSyntaxException e) {
+		} catch (final PatternSyntaxException e) {
 			Skript.error("Invalid Regex pattern '" + getValue() + "' found at '" + key + "' in the " + Language.getName() + " language file: " + e.getLocalizedMessage());
 		}
 	}

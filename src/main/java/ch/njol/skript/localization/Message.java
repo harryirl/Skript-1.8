@@ -33,20 +33,24 @@ import ch.njol.skript.Skript;
  */
 public class Message {
 	
-	// This is most likely faster than registering a listener for each Message
-	private static final Collection<Message> messages = new ArrayList<>(50);
-	private static boolean firstChange = true;
+	// this is most likely faster than registering a listener for each Message
+	final static Collection<Message> messages = new ArrayList<>(50);
+	static boolean firstChange = true;
 	static {
-		Language.addListener(() -> {
-			for (final Message m : messages) {
-				synchronized (m) {
-					m.revalidate = true;
+		Language.addListener(new LanguageChangeListener() {
+			@Override
+			public void onLanguageChange() {
+				for (final Message m : messages) {
+					synchronized (m) {
+						m.revalidate = true;
+					}
+					if (firstChange && Skript.testing()) {
+						if (!Language.english.containsKey(m.key))
+							Language.missingEntryError(m.key);
+					}
 				}
-				if (firstChange && Skript.testing() && !Language.keyExists(m.key)) {
-					Language.missingEntryError(m.key);
-				}
+				firstChange = false;
 			}
-			firstChange = false;
 		});
 	}
 	
@@ -58,9 +62,10 @@ public class Message {
 	public Message(final String key) {
 		this.key = "" + key.toLowerCase(Locale.ENGLISH);
 		messages.add(this);
-
-		if (Skript.testing() && Language.isInitialized() && !Language.keyExists(this.key))
-			Language.missingEntryError(this.key);
+		if (Skript.testing() && !Language.english.isEmpty()) {
+			if (!Language.english.containsKey(this.key))
+				Language.missingEntryError(this.key);
+		}
 	}
 	
 	/**
@@ -78,7 +83,7 @@ public class Message {
 	 * @return This message's value or null if it doesn't exist.
 	 */
 	@Nullable
-	public final String getValue() {
+	protected final String getValue() {
 		validate();
 		return value;
 	}

@@ -228,7 +228,7 @@ public class EventValues {
 			if (ev.event.isAssignableFrom(e))
 				return (Getter<? extends T, ? super E>) ev.getter;
 		}
-		// Second check for assignable subclasses.
+		// Second check for assignable sub classes.
 		for (EventValueInfo<?, ?> ev : eventValues) {
 			if (!c.isAssignableFrom(ev.c))
 				continue;
@@ -262,7 +262,7 @@ public class EventValues {
 				@Override
 				@Nullable
 				public T get(E event) {
-					if (checkInstanceOf && !ev.event.isInstance(event))
+					if (checkInstanceOf && !e.isInstance(event))
 						return null;
 					Object object = ((Getter<? super T, ? super E>) ev.getter).get(event);
 					if (c.isInstance(object))
@@ -276,14 +276,11 @@ public class EventValues {
 			boolean b = !ev.event.isAssignableFrom(e);
 			if (b && !e.isAssignableFrom(ev.event))
 				continue;
-			
-			Getter<? extends T, ? super E> getter = (Getter<? extends T, ? super E>) getConvertedGetter(ev, c, !b);
-			if (getter == null)
-				continue;
-			
 			if (!checkExcludes(ev, e))
 				return null;
-			return getter;
+			Getter<? extends T, ? super E> getter = (Getter<? extends T, ? super E>) getConvertedGetter(ev, c, !b);
+			if (getter != null)
+				return getter;
 		}
 		// If the check should try again matching event values with a 0 time (most event values).
 		if (allowDefault && time != 0)
@@ -298,11 +295,11 @@ public class EventValues {
 	 * @param e
 	 * @return boolean if true the event value passes for the events.
 	 */
-	@SuppressWarnings("unchecked")
 	private static boolean checkExcludes(EventValueInfo<?, ?> ev, Class<? extends Event> e) {
-		if (ev.excludes == null)
+		Class<? extends Event>[] excl = ev.excludes;
+		if (excl == null)
 			return true;
-		for (Class<? extends Event> ex : (Class<? extends Event>[]) ev.excludes) {
+		for (Class<? extends Event> ex : excl) {
 			if (ex.isAssignableFrom(e)) {
 				Skript.error(ev.excludeErrorMessage);
 				return false;

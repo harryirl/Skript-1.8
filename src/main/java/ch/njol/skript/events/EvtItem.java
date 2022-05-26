@@ -18,7 +18,6 @@
  */
 package ch.njol.skript.events;
 
-import ch.njol.skript.sections.EffSecSpawn;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
@@ -36,6 +35,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.effects.EffSpawn;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -136,7 +136,7 @@ public class EvtItem extends SkriptEvent {
 	@Override
 	public boolean check(final Event e) {
 		if (e instanceof ItemSpawnEvent) // To make 'last dropped item' possible.
-			EffSecSpawn.lastSpawned = ((ItemSpawnEvent) e).getEntity();
+			EffSpawn.lastSpawned = ((ItemSpawnEvent) e).getEntity();
 		if (hasEntityPickupItemEvent && ((!entity && e instanceof EntityPickupItemEvent) || (entity && e instanceof PlayerPickupItemEvent)))
 			return false;
 		if (types == null)

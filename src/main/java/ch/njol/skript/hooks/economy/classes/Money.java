@@ -18,7 +18,6 @@
  */
 package ch.njol.skript.hooks.economy.classes;
 
-import ch.njol.skript.classes.data.JavaClasses;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -66,7 +65,12 @@ public class Money {
 					public String toVariableNameString(final Money o) {
 						return "money:" + o.amount;
 					}
-                })
+					
+					@Override
+					public String getVariableNamePattern() {
+						return "money:-?\\d+(\\.\\d+)?";
+					}
+				})
 				.math(Money.class, new Arithmetic<Money, Money>() {
 					@Override
 					public Money difference(final Money first, final Money second) {
@@ -146,44 +150,41 @@ public class Money {
 	@SuppressWarnings({"null", "unused"})
 	@Nullable
 	public static Money parse(final String s) {
-		if (VaultHook.economy == null)
+		if (VaultHook.economy == null) {
+//			Skript.error("No economy plugin detected");
 			return null;
-
-		String singular = VaultHook.economy.currencyNameSingular(), plural = VaultHook.economy.currencyNamePlural();
+		}
+		final String singular = VaultHook.economy.currencyNameSingular(), plural = VaultHook.economy.currencyNamePlural();
 		if (plural != null && !plural.isEmpty()) {
-			Money money = parseMoney(s, plural);
-			if (money != null)
-				return money;
+			if (StringUtils.endsWithIgnoreCase(s, plural)) {
+				try {
+					final double d = Double.parseDouble(s.substring(0, s.length() - plural.length()).trim());
+					return new Money(d);
+				} catch (final NumberFormatException e) {}
+			} else if (StringUtils.startsWithIgnoreCase(s, plural)) {
+				try {
+					final double d = Double.parseDouble(s.substring(plural.length()).trim());
+					return new Money(d);
+				} catch (final NumberFormatException e) {}
+			}
 		}
 		if (singular != null && !singular.isEmpty()) {
-			return parseMoney(s, singular);
+			if (StringUtils.endsWithIgnoreCase(s, singular)) {
+				try {
+					final double d = Double.parseDouble(s.substring(0, s.length() - singular.length()).trim());
+					return new Money(d);
+				} catch (final NumberFormatException e) {}
+			} else if (StringUtils.startsWithIgnoreCase(s, singular)) {
+				try {
+					final double d = Double.parseDouble(s.substring(singular.length()).trim());
+					return new Money(d);
+				} catch (final NumberFormatException e) {}
+			}
 		}
+//		try {
+//			return new Money(Double.parseDouble(s));
+//		} catch (final NumberFormatException e) {}
 		return null;
-	}
-
-	@Nullable
-	private static Money parseMoney(String s, String addition) {
-		if (StringUtils.endsWithIgnoreCase(s, addition)) {
-			Double d = parseDouble(s.substring(0, s.length() - addition.length()).trim());
-			if (d != null)
-				return new Money(d);
-		} else if (StringUtils.startsWithIgnoreCase(s, addition)) {
-			Double d = parseDouble(s.substring(addition.length()).trim());
-			if (d != null)
-				return new Money(d);
-		}
-		return null;
-	}
-
-	@Nullable
-	private static Double parseDouble(String s) {
-		if (!JavaClasses.NUMBER_PATTERN.matcher(s).matches())
-			return null;
-		try {
-			return Double.parseDouble(s);
-		} catch (NumberFormatException e) {
-			return null;
-		}
 	}
 	
 	@Override

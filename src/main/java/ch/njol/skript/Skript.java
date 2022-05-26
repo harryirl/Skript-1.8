@@ -201,24 +201,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		instance = this;
 	}
 	
-	private static Version minecraftVersion = new Version(666), UNKNOWN_VERSION = new Version(666);
-	private static ServerPlatform serverPlatform = ServerPlatform.BUKKIT_UNKNOWN; // Start with unknown... onLoad changes this
-
-	/**
-	 * Check minecraft version and assign it to minecraftVersion field
-	 * This method is created to update MC version before onEnable method
-	 * To fix {@link Utils#HEX_SUPPORTED} being assigned before minecraftVersion is properly assigned
-	 */
-	public static void updateMinecraftVersion() {
-		String bukkitV = Bukkit.getBukkitVersion();
-		Matcher m = Pattern.compile("\\d+\\.\\d+(\\.\\d+)?").matcher(bukkitV);
-		if (!m.find()) {
-			minecraftVersion = new Version(666, 0, 0);
-		} else {
-			minecraftVersion = new Version("" + m.group());
-		}
-	}
-	
 	@Nullable
 	private static Version version = null;
 	
@@ -339,7 +321,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		
 		version = new Version("" + getDescription().getVersion()); // Skript version
 		
-		getAddonInstance();
+		Language.loadDefault(getAddonInstance());
 		
 		Workarounds.init();
 		
@@ -354,11 +336,10 @@ public final class Skript extends JavaPlugin implements Listener {
 		if (!getDataFolder().isDirectory())
 			getDataFolder().mkdirs();
 		
-		File scripts = new File(getDataFolder(), SCRIPTSFOLDER);
-		File config = new File(getDataFolder(), "config.sk");
-		File features = new File(getDataFolder(), "features.sk");
-		File lang = new File(getDataFolder(), "lang");
-		if (!scripts.isDirectory() || !config.exists() || !features.exists() || !lang.exists()) {
+		final File scripts = new File(getDataFolder(), SCRIPTSFOLDER);
+		final File config = new File(getDataFolder(), "config.sk");
+		final File features = new File(getDataFolder(), "features.sk");
+		if (!scripts.isDirectory() || !config.exists() || !features.exists()) {
 			ZipFile f = null;
 			try {
 				boolean populateExamples = false;
@@ -367,33 +348,19 @@ public final class Skript extends JavaPlugin implements Listener {
 						throw new IOException("Could not create the directory " + scripts);
 					populateExamples = true;
 				}
-
-				boolean populateLanguageFiles = false;
-				if (!lang.isDirectory()) {
-					if (!lang.mkdirs())
-						throw new IOException("Could not create the directory " + lang);
-					populateLanguageFiles = true;
-				}
-
 				f = new ZipFile(getFile());
-				for (ZipEntry e : new EnumerationIterable<ZipEntry>(f.entries())) {
+				for (final ZipEntry e : new EnumerationIterable<ZipEntry>(f.entries())) {
 					if (e.isDirectory())
 						continue;
 					File saveTo = null;
-					if (populateExamples && e.getName().startsWith(SCRIPTSFOLDER + "/")) {
-						String fileName = e.getName().substring(e.getName().lastIndexOf('/') + 1);
+					if (e.getName().startsWith(SCRIPTSFOLDER + "/") && populateExamples) {
+						final String fileName = e.getName().substring(e.getName().lastIndexOf('/') + 1);
 						saveTo = new File(scripts, (fileName.startsWith("-") ? "" : "-") + fileName);
-					} else if (populateLanguageFiles
-							&& e.getName().startsWith("lang/")
-							&& e.getName().endsWith(".lang")
-							&& !e.getName().endsWith("/default.lang")) {
-						String fileName = e.getName().substring(e.getName().lastIndexOf('/') + 1);
-						saveTo = new File(lang, fileName);
 					} else if (e.getName().equals("config.sk")) {
 						if (!config.exists())
 							saveTo = config;
 //					} else if (e.getName().startsWith("aliases-") && e.getName().endsWith(".sk") && !e.getName().contains("/")) {
-//						File af = new File(getDataFolder(), e.getName());
+//						final File af = new File(getDataFolder(), e.getName());
 //						if (!af.exists())
 //							saveTo = af;
 					} else if (e.getName().startsWith("features.sk")) {
@@ -401,7 +368,7 @@ public final class Skript extends JavaPlugin implements Listener {
 							saveTo = features;
 					}
 					if (saveTo != null) {
-						InputStream in = f.getInputStream(e);
+						final InputStream in = f.getInputStream(e);
 						try {
 							assert in != null;
 							FileUtils.save(in, saveTo);
@@ -411,13 +378,13 @@ public final class Skript extends JavaPlugin implements Listener {
 					}
 				}
 				info("Successfully generated the config and the example scripts.");
-			} catch (ZipException ignored) {} catch (IOException e) {
+			} catch (final ZipException e) {} catch (final IOException e) {
 				error("Error generating the default files: " + ExceptionUtils.toString(e));
 			} finally {
 				if (f != null) {
 					try {
 						f.close();
-					} catch (IOException ignored) {}
+					} catch (final IOException e) {}
 				}
 			}
 		}
@@ -478,7 +445,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		PluginCommand skriptCommand = getCommand("skript");
 		assert skriptCommand != null; // It is defined, unless build is corrupted or something like that
 		skriptCommand.setExecutor(new SkriptCommand());
-		skriptCommand.setTabCompleter(new SkriptCommandTabCompleter());
 		
 		// Load Bukkit stuff. It is done after platform check, because something might be missing!
 		new BukkitClasses();
@@ -497,7 +463,9 @@ public final class Skript extends JavaPlugin implements Listener {
 			setEnabled(false);
 			return;
 		}
-
+		
+		Language.setUseLocal(true);
+		
 		Commands.registerListeners();
 		
 		if (logNormal())
@@ -535,6 +503,8 @@ public final class Skript extends JavaPlugin implements Listener {
 					Skript.exception(e);
 				}
 				finishedLoadingHooks = true;
+				
+				Language.setUseLocal(false);
 				
 				if (TestMode.ENABLED) {
 					info("Preparing Skript for testing...");
@@ -889,6 +859,9 @@ public final class Skript extends JavaPlugin implements Listener {
 		}
 	}
 	
+	private static Version minecraftVersion = new Version(666);
+	private static ServerPlatform serverPlatform = ServerPlatform.BUKKIT_UNKNOWN; // Start with unknown... onLoad changes this
+	
 	public static Version getMinecraftVersion() {
 		return minecraftVersion;
 	}
@@ -904,23 +877,14 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @return Whether this server is running Minecraft <tt>major.minor</tt> or higher
 	 */
 	public static boolean isRunningMinecraft(final int major, final int minor) {
-		if (minecraftVersion.compareTo(UNKNOWN_VERSION) == 0) { // Make sure minecraftVersion is properly assigned.
-			updateMinecraftVersion();
-		}
 		return minecraftVersion.compareTo(major, minor) >= 0;
 	}
 	
 	public static boolean isRunningMinecraft(final int major, final int minor, final int revision) {
-		if (minecraftVersion.compareTo(UNKNOWN_VERSION) == 0) {
-			updateMinecraftVersion();
-		}
 		return minecraftVersion.compareTo(major, minor, revision) >= 0;
 	}
 	
 	public static boolean isRunningMinecraft(final Version v) {
-		if (minecraftVersion.compareTo(UNKNOWN_VERSION) == 0) {
-			updateMinecraftVersion();
-		}
 		return minecraftVersion.compareTo(v) >= 0;
 	}
 	
@@ -1072,9 +1036,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			}
 
 			try {
-				// Spigot removed the mapping for this method in 1.18, so its back to obfuscated method
-				String isRunningMethod = Skript.isRunningMinecraft(1, 18) ? "v" : "isRunning";
-				IS_RUNNING = MC_SERVER.getClass().getMethod(isRunningMethod);
+				IS_RUNNING = MC_SERVER.getClass().getMethod("isRunning");
 			} catch (NoSuchMethodException e) {
 				throw new RuntimeException(e);
 			}

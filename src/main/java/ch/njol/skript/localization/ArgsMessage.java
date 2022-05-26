@@ -24,7 +24,7 @@ import ch.njol.skript.Skript;
 
 public final class ArgsMessage extends Message {
 	
-	public ArgsMessage(String key) {
+	public ArgsMessage(final String key) {
 		super(key);
 	}
 	
@@ -33,12 +33,12 @@ public final class ArgsMessage extends Message {
 		throw new UnsupportedOperationException();
 	}
 	
-	public String toString(Object... args) {
+	public String toString(final Object... args) {
 		try {
-			String val = getValue();
+			final String val = getValue();
 			return val == null ? key : "" + String.format(val, args);
-		} catch (IllegalFormatException e) {
-			String m = "The formatted message '" + key + "' uses an illegal format: " + e.getLocalizedMessage();
+		} catch (final IllegalFormatException e) {
+			final String m = "The formatted message '" + key + "' uses an illegal format: " + e.getLocalizedMessage();
 			Skript.adminBroadcast("<red>" + m);
 			System.err.println("[Skript] " + m);
 			e.printStackTrace();

@@ -18,7 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -49,13 +48,12 @@ import ch.njol.util.coll.CollectionUtils;
 @Description("The world the event occurred in.")
 @Examples({"world is \"world_nether\"",
 		"teleport the player to the world's spawn",
-		"set the weather in the player's world to rain",
-		"set {_world} to world of event-chunk"})
+		"set the weather in the player's world to rain"})
 @Since("1.0")
 public class ExprWorld extends PropertyExpression<Object, World> {
 
 	static {
-		Skript.registerExpression(ExprWorld.class, World.class, ExpressionType.PROPERTY, "[the] world [of %locations/entities/chunk%]", "%locations/entities/chunk%'[s] world");
+		Skript.registerExpression(ExprWorld.class, World.class, ExpressionType.PROPERTY, "[the] world [of %locations/entities%]", "%locations/entities%'[s] world");
 	}
 	
 	@Override
@@ -83,11 +81,9 @@ public class ExprWorld extends PropertyExpression<Object, World> {
 						return ((PlayerTeleportEvent) e).getTo().getWorld();
 					else
 						return ((Entity) o).getWorld();
-				} else if (o instanceof Location) {
-					return ((Location) o).getWorld();
-				} else if (o instanceof Chunk) {
-					return ((Chunk) o).getWorld();
 				}
+				if (o instanceof Location)
+					return ((Location) o).getWorld();
 				assert false : o;
 				return null;
 			}

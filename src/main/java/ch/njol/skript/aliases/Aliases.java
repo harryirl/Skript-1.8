@@ -195,7 +195,7 @@ public abstract class Aliases {
 	}
 	
 	/**
-	 * @return The item's gender or -1 if no name is found
+	 * @return The ietm's gender or -1 if no name is found
 	 */
 	public static int getGender(ItemData item) {
 		MaterialName n = getMaterialNameData(item);
@@ -310,14 +310,17 @@ public abstract class Aliases {
 	@Nullable
 	private static ItemType parseType(final String s, final ItemType t, final boolean isAlias) {
 		ItemType i;
-		if (s.isEmpty()) {
+		final String type = s;
+		if (type.isEmpty()) {
 			t.add(new ItemData(Material.AIR));
 			return t;
-		} else if (s.matches("\\d+")) {
+		} else if (type.matches("\\d+")) {
+			Skript.error("Numeric ids are not supported anymore.");
 			return null;
-		} else if ((i = getAlias(s)) != null) {
+		} else if ((i = getAlias(type)) != null) {
 			for (ItemData d : i) {
-				t.add(d.clone());
+				d = d.clone();
+				t.add(d);
 			}
 			return t;
 		}

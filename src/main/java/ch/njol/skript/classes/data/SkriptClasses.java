@@ -106,7 +106,11 @@ public class SkriptClasses {
 					public String getDebugMessage(final ClassInfo c) {
 						return c.getCodeName();
 					}
-
+					
+					@Override
+					public String getVariableNamePattern() {
+						return "\\S+";
+					}
 				})
 				.serializer(new Serializer<ClassInfo>() {
 					@Override
@@ -176,7 +180,11 @@ public class SkriptClasses {
 					public String toVariableNameString(final WeatherType o) {
 						return "" + o.name().toLowerCase();
 					}
-
+					
+					@Override
+					public String getVariableNamePattern() {
+						return "[a-z]+";
+					}
 				})
 				.serializer(new EnumSerializer<>(WeatherType.class)));
 		
@@ -236,6 +244,11 @@ public class SkriptClasses {
 						}
 						return "" + b.toString();
 					}
+
+					@Override
+					public String getVariableNamePattern() {
+						return "itemtype:.+";
+					}
 				})
 				.cloner(ItemType::clone)
 				.serializer(new YggdrasilSerializer<>()));
@@ -268,6 +281,11 @@ public class SkriptClasses {
 					public String toVariableNameString(final Time o) {
 						return "time:" + o.getTicks();
 					}
+
+					@Override
+					public String getVariableNamePattern() {
+						return "time:\\d+";
+					}
 				}).serializer(new YggdrasilSerializer<Time>() {
 //						return "" + t.getTicks();
 					@Override
@@ -289,18 +307,15 @@ public class SkriptClasses {
 		Classes.registerClass(new ClassInfo<>(Timespan.class, "timespan")
 				.user("time ?spans?")
 				.name("Timespan")
-				.description("A timespan is a difference of two different dates or times, " +
-						"e.g '10 minutes'. Timespans are always displayed as real life time, but can be defined as minecraft time, " +
-						"e.g. '5 minecraft days and 12 hours'.",
-						"NOTE: Months always have the value of 30 days, and years of 365 days.",
+				.description("A timespan is a difference of two different dates or times, e.g '10 minutes'. Timespans are always displayed as real life time, but can be defined as minecraft time, e.g. '5 minecraft days and 12 hours'.",
 						"See <a href='#date'>date</a> and <a href='#time'>time</a> for the other time types of Skript.")
-				.usage("&lt;number&gt; [minecraft/mc/real/rl/irl] ticks/seconds/minutes/hours/days/weeks/months/years [[,/and] &lt;more...&gt;]",
+				.usage("&lt;number&gt; [minecraft/mc/real/rl/irl] ticks/seconds/minutes/hours/days [[,/and] &lt;more...&gt;]",
 						"[###:]##:##[.####] ([hours:]minutes:seconds[.milliseconds])")
 				.examples("every 5 minecraft days:",
 						"	wait a minecraft second and 5 ticks",
 						"every 10 mc days and 12 hours:",
 						"	halt for 12.7 irl minutes, 12 hours and 120.5 seconds")
-				.since("1.0, INSERT VERSION (weeks, months, years)")
+				.since("1.0")
 				.parser(new Parser<Timespan>() {
 					@Override
 					@Nullable
@@ -321,6 +336,11 @@ public class SkriptClasses {
 					@Override
 					public String toVariableNameString(final Timespan o) {
 						return "timespan:" + o.getMilliSeconds();
+					}
+
+					@Override
+					public String getVariableNamePattern() {
+						return "timespan:\\d+";
 					}
 				}).serializer(new YggdrasilSerializer<Timespan>() {
 //						return "" + t.getMilliSeconds();
@@ -418,6 +438,11 @@ public class SkriptClasses {
 					@Override
 					public String toVariableNameString(final Timeperiod o) {
 						return "timeperiod:" + o.start + "-" + o.end;
+					}
+
+					@Override
+					public String getVariableNamePattern() {
+						return "timeperiod:\\d+-\\d+";
 					}
 				}).serializer(new YggdrasilSerializer<Timeperiod>() {
 //						return t.start + "-" + t.end;
@@ -520,6 +545,11 @@ public class SkriptClasses {
 					@Override
 					public String toVariableNameString(final Direction o) {
 						return o.toString();
+					}
+
+					@Override
+					public String getVariableNamePattern() {
+						return ".*";
 					}
 				})
 				.serializer(new YggdrasilSerializer<Direction>() {
@@ -646,6 +676,11 @@ public class SkriptClasses {
 					public String toVariableNameString(Slot o) {
 						return "slot:" + o.toString();
 					}
+
+					@Override
+					public String getVariableNamePattern() {
+						return "slot:.+";
+					}
 				})
 				.serializeAs(ItemStack.class));
 
@@ -677,6 +712,11 @@ public class SkriptClasses {
 					public String toVariableNameString(Color color) {
 						return "" + color.getName().toLowerCase(Locale.ENGLISH).replace('_', ' ');
 					}
+
+					@Override
+					public String getVariableNamePattern() {
+						return "[a-z ]+";
+					}
 				}));
 
 		Classes.registerClass(new ClassInfo<>(StructureType.class, "structuretype")
@@ -704,6 +744,11 @@ public class SkriptClasses {
 					public String toVariableNameString(final StructureType o) {
 						return "" + o.name().toLowerCase();
 					}
+
+					@Override
+					public String getVariableNamePattern() {
+						return "[a-z ]+";
+					}
 				}).serializer(new EnumSerializer<>(StructureType.class)));
 
 		Classes.registerClass(new ClassInfo<>(EnchantmentType.class, "enchantmenttype")
@@ -729,6 +774,11 @@ public class SkriptClasses {
 					@Override
 					public String toVariableNameString(final EnchantmentType o) {
 						return o.toString();
+					}
+
+					@Override
+					public String getVariableNamePattern() {
+						return ".+";
 					}
 				})
 				.serializer(new YggdrasilSerializer<EnchantmentType>() {
@@ -783,7 +833,11 @@ public class SkriptClasses {
 					public String toVariableNameString(final Experience xp) {
 						return "" + xp.getXP();
 					}
-
+					
+					@Override
+					public String getVariableNamePattern() {
+						return "\\d+";
+					}
 				})
 				.serializer(new YggdrasilSerializer<Experience>() {
 //						return "" + xp;
@@ -823,6 +877,10 @@ public class SkriptClasses {
 						return e.toString();
 					}
 
+					@Override
+					public String getVariableNamePattern() {
+						return ".*";
+					}
 				})
 				.serializer(new YggdrasilSerializer<>()));
 		
