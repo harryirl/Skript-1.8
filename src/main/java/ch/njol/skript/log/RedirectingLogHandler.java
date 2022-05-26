@@ -38,25 +38,20 @@ public class RedirectingLogHandler extends LogHandler {
 	
 	private int numErrors = 0;
 	
-	public RedirectingLogHandler(CommandSender recipient, @Nullable String prefix) {
+	public RedirectingLogHandler(final CommandSender recipient, final @Nullable String prefix) {
 		this.recipient = recipient == Bukkit.getConsoleSender() ? null : recipient;
 		this.prefix = prefix == null ? "" : prefix;
 	}
 	
 	@Override
-	public LogResult log(LogEntry entry) {
+	public LogResult log(final LogEntry entry) {
 		if (recipient != null)
-			recipient.sendMessage(prefix + entry);
+			recipient.sendMessage(prefix + entry.toString());
 		else
-			SkriptLogger.LOGGER.log(entry.getLevel(), prefix + entry);
+			SkriptLogger.LOGGER.log(entry.getLevel(), prefix + entry.toString());
 		if (entry.level == Level.SEVERE)
 			numErrors++;
 		return LogResult.DO_NOT_LOG;
-	}
-	
-	@Override
-	public RedirectingLogHandler start() {
-		return SkriptLogger.startLogHandler(this);
 	}
 	
 	public int numErrors() {

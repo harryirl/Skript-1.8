@@ -26,6 +26,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.block.SpongeAbsorbEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
@@ -53,7 +54,7 @@ public class ExprAbsorbedBlocks extends SimpleExpression<BlockStateBlock> {
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(SpongeAbsorbEvent.class)) {
+		if (!ScriptLoader.isCurrentEvent(SpongeAbsorbEvent.class)) {
 			Skript.error("The 'absorbed blocks' are only usable in sponge absorb events", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}

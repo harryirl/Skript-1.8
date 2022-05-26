@@ -27,19 +27,13 @@ public class FilteringLogHandler extends LogHandler {
 	
 	private final int minimum;
 	
-	public FilteringLogHandler(Level minimum) {
+	public FilteringLogHandler(final Level minimum) {
 		this.minimum = minimum.intValue();
 	}
 	
 	@Override
-	public LogResult log(LogEntry entry) {
+	public LogResult log(final LogEntry entry) {
 		return entry.level.intValue() >= minimum ? LogResult.LOG : LogResult.DO_NOT_LOG;
-	}
-	
-	@Override
-	public FilteringLogHandler start() {
-		SkriptLogger.startLogHandler(this);
-		return this;
 	}
 	
 }

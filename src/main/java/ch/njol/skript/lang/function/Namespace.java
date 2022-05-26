@@ -32,7 +32,7 @@ public class Namespace {
 	/**
 	 * Origin of functions in namespace.
 	 */
-	public enum Origin {
+	public static enum Origin {
 		/**
 		 * Functions implemented in Java.
 		 */
@@ -69,7 +69,7 @@ public class Namespace {
 
 		@Override
 		public int hashCode() {
-			int prime = 31;
+			final int prime = 31;
 			int result = 1;
 			result = prime * result + name.hashCode();
 			result = prime * result + origin.hashCode();

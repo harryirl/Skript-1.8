@@ -63,8 +63,6 @@ public class ExprDifficulty extends SimplePropertyExpression<World, Difficulty> 
 		Difficulty difficulty = (Difficulty) delta[0];
 		for (World world : getExpr().getArray(e)) {
 			world.setDifficulty(difficulty);
-			if (difficulty != Difficulty.PEACEFUL)
-				world.setSpawnFlags(true, world.getAllowAnimals()); // Force enable spawn monsters as changing difficulty won't change this by itself
 		}
 	}
 	

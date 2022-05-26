@@ -47,7 +47,6 @@ public class ExprLastAttacker extends SimplePropertyExpression<Entity, Object> {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
 		attackerExpr = new ExprAttacker();
-		setExpr((Expression<? extends Entity>) exprs[0]);
 		return true;
 	}
 	

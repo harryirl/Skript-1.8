@@ -23,6 +23,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityTameEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -48,7 +49,7 @@ public class ExprTamer extends SimpleExpression<Player> {
 	
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
-		if (!getParser().isCurrentEvent(EntityTameEvent.class)) {
+		if (!ScriptLoader.isCurrentEvent(EntityTameEvent.class)) {
 			Skript.error("the expression 'tamer' may only be used in the entity tame event.");
 			return false;
 		}

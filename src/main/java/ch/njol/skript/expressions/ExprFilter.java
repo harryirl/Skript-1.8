@@ -26,7 +26,6 @@ import java.util.regex.Pattern;
 
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
 
 import com.google.common.collect.Iterators;
 import ch.njol.skript.Skript;
@@ -56,7 +55,6 @@ import ch.njol.util.coll.iterator.ArrayIterator;
 @SuppressWarnings({"null", "unchecked"})
 public class ExprFilter extends SimpleExpression<Object> {
 
-	@Nullable
 	private static ExprFilter parsing;
 
 	static {
@@ -70,7 +68,6 @@ public class ExprFilter extends SimpleExpression<Object> {
 	private String rawCond;
 	private Expression<Object> objects;
 
-	@Nullable
 	public static ExprFilter getParsing() {
 		return parsing;
 	}
@@ -166,20 +163,16 @@ public class ExprFilter extends SimpleExpression<Object> {
 			);
 		}
 
-		@Nullable
-		private final ExprInput<?> source;
-		private final Class<? extends T>[] types;
-		private final Class<T> superType;
-		@SuppressWarnings("NotNullFieldNotInitialized")
+		private ExprInput<?> source;
+		private Class<T> superType;
 		private ExprFilter parent;
-		@Nullable
 		private ClassInfo<?> inputType;
 
-		public ExprInput() {
+	public ExprInput() {
 			this(null, (Class<? extends T>) Object.class);
 		}
 
-		public ExprInput(@Nullable ExprInput<?> source, Class<? extends T>... types) {
+		public ExprInput(ExprInput<?> source, Class<? extends T>... types) {
 			this.source = source;
 			if (source != null) {
 				this.parent = source.parent;
@@ -188,7 +181,6 @@ public class ExprFilter extends SimpleExpression<Object> {
 				parent.addChild(this);
 			}
 
-			this.types = types;
 			this.superType = (Class<T>) Utils.getSuperType(types);
 		}
 
@@ -212,7 +204,7 @@ public class ExprFilter extends SimpleExpression<Object> {
 			}
 
 			try {
-				return Converters.convertArray(new Object[]{current}, types, superType);
+				return Converters.convertStrictly(new Object[]{current}, superType);
 			} catch (ClassCastException e1) {
 				return (T[]) Array.newInstance(superType, 0);
 			}
@@ -237,7 +229,6 @@ public class ExprFilter extends SimpleExpression<Object> {
 			return superType;
 		}
 
-		@Nullable
 		private ClassInfo<?> getClassInfo() {
 			return inputType;
 		}

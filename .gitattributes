@@ -49,5 +49,3 @@
         *.7z binary
         *.ttf binary
         *.pyc binary
-	*.jar binary
-	*.class binary

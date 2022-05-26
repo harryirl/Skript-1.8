@@ -23,6 +23,7 @@ import org.bukkit.event.player.PlayerResourcePackStatusEvent;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
 import org.eclipse.jdt.annotation.Nullable;
 
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
@@ -55,7 +56,7 @@ public class CondResourcePack extends Condition {
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(PlayerResourcePackStatusEvent.class)) {
+		if (!ScriptLoader.isCurrentEvent(PlayerResourcePackStatusEvent.class)) {
 			Skript.error("The resource pack condition can't be used outside of a resource pack response event");
 			return false;
 		}

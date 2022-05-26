@@ -22,6 +22,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.command.EffectCommandEvent;
 import ch.njol.skript.doc.Description;
@@ -48,7 +49,7 @@ public class ExprMe extends SimpleExpression<CommandSender> {
 	
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(EffectCommandEvent.class)) {
+		if (!ScriptLoader.isCurrentEvent(EffectCommandEvent.class)) {
 			return false;
 		}
 		return true;

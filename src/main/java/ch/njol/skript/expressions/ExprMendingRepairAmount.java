@@ -22,6 +22,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerItemMendEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -51,7 +52,7 @@ public class ExprMendingRepairAmount extends SimpleExpression<Number> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(PlayerItemMendEvent.class)) {
+		if (!ScriptLoader.isCurrentEvent(PlayerItemMendEvent.class)) {
 			Skript.error("The 'mending repair amount' is only usable in item mend events", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}

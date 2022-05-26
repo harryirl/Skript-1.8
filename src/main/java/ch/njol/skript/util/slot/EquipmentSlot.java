@@ -20,6 +20,7 @@ package ch.njol.skript.util.slot;
 
 import java.util.Locale;
 
+import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -27,6 +28,7 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.PlayerUtils;
 import ch.njol.skript.registrations.Classes;
 
@@ -35,30 +37,47 @@ import ch.njol.skript.registrations.Classes;
  */
 public class EquipmentSlot extends SlotWithIndex {
 	
-	public enum EquipSlot {
+	public static enum EquipSlot {
 		TOOL {
+			@SuppressWarnings("deprecation")
 			@Override
 			@Nullable
 			public ItemStack get(final EntityEquipment e) {
-				return e.getItemInMainHand();
+				if (Skript.isRunningMinecraft(1, 9)) {
+					return e.getItemInMainHand();
+				}
+				return e.getItemInHand();
 			}
-
+			
+			@SuppressWarnings("deprecation")
 			@Override
 			public void set(final EntityEquipment e, final @Nullable ItemStack item) {
-				e.setItemInMainHand(item);
+				if (Skript.isRunningMinecraft(1, 9)) {
+					e.setItemInMainHand(item);
+				} else {
+					e.setItemInHand(item);
+				}
 			}
 		},
-		OFF_HAND(40) {
+		OFF_HAND { // Since Minecraft 1.9 (defaults to empty if earlier version)
 
 			@Override
 			@Nullable
 			public ItemStack get(EntityEquipment e) {
-				return e.getItemInOffHand();
+				if (Skript.isRunningMinecraft(1, 9)) {
+					return e.getItemInOffHand();
+				}
+				Skript.warning("No off hand support, but a skript would need that!");
+				return new ItemStack(Material.AIR);
 			}
 
 			@Override
 			public void set(EntityEquipment e, @Nullable ItemStack item) {
-				e.setItemInOffHand(item);
+				if (Skript.isRunningMinecraft(1, 9)) {
+					e.setItemInOffHand(item);
+				} else {
+					Skript.warning("No off hand support, but a skript would need that!");
+				}
 			}
 			
 		},

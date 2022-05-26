@@ -18,6 +18,9 @@
  */
 package ch.njol.skript.effects;
 
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.doc.Description;
@@ -28,17 +31,12 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
-import ch.njol.skript.lang.TriggerSection;
 import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.ScriptFunction;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
-import ch.njol.skript.sections.SecLoop;
-import ch.njol.skript.sections.SecWhile;
 import ch.njol.util.Kleenean;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * @author Peter Güttinger
@@ -49,40 +47,36 @@ import org.eclipse.jdt.annotation.Nullable;
 		"	return 2 * {_i}"})
 @Since("2.2")
 public class EffReturn extends Effect {
-	
 	static {
 		Skript.registerEffect(EffReturn.class, "return %objects%");
 	}
 	
-	@SuppressWarnings("NotNullFieldNotInitialized")
+	@SuppressWarnings("null")
 	private ScriptFunction<?> function;
 	
-	@SuppressWarnings("NotNullFieldNotInitialized")
+	@SuppressWarnings("null")
 	private Expression<?> value;
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		ScriptFunction<?> f = Functions.currentFunction;
+	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+		final ScriptFunction<?> f = Functions.currentFunction;
 		if (f == null) {
 			Skript.error("The return statement can only be used in a function");
 			return false;
 		}
-		
 		if (!isDelayed.isFalse()) {
 			Skript.error("A return statement after a delay is useless, as the calling trigger will resume when the delay starts (and won't get any returned value)");
 			return false;
 		}
-		
 		function = f;
-		ClassInfo<?> rt = function.getReturnType();
+		final ClassInfo<?> rt = function.getReturnType();
 		if (rt == null) {
 			Skript.error("This function doesn't return any value. Please use 'stop' or 'exit' if you want to stop the function.");
 			return false;
 		}
-		
-		RetainingLogHandler log = SkriptLogger.startRetainingLog();
-		Expression<?> v;
+		final RetainingLogHandler log = SkriptLogger.startRetainingLog();
+		final Expression<?> v;
 		try {
 			v = exprs[0].getConvertedExpression(rt.getC());
 			if (v == null) {
@@ -93,13 +87,11 @@ public class EffReturn extends Effect {
 		} finally {
 			log.stop();
 		}
-		
 		if (f.isSingle() && !v.isSingle()) {
 			Skript.error("This function is defined to only return a single " + rt.toString() + ", but this return statement can return multiple values.");
 			return false;
 		}
 		value = v;
-		
 		return true;
 	}
 	
@@ -108,32 +100,20 @@ public class EffReturn extends Effect {
 	@Nullable
 	protected TriggerItem walk(final Event e) {
 		debug(e, false);
-		if (e instanceof FunctionEvent) {
-			((ScriptFunction) function).setReturnValue(value.getArray(e));
-		} else {
+		if (e instanceof FunctionEvent)
+			((ScriptFunction) function).setReturnValue((FunctionEvent) e, value.getArray(e));
+		else
 			assert false : e;
-		}
-
-		TriggerSection parent = getParent();
-		while (parent != null) {
-			if (parent instanceof SecLoop) {
-				((SecLoop) parent).exit(e);
-			} else if (parent instanceof SecWhile) {
-				((SecWhile) parent).reset();
-			}
-			parent = parent.getParent();
-		}
-
 		return null;
 	}
 	
 	@Override
-	protected void execute(Event e) {
+	protected void execute(final Event e) {
 		assert false;
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable final Event e, final boolean debug) {
 		return "return " + value.toString(e, debug);
 	}
 	

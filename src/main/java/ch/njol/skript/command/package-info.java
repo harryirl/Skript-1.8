@@ -21,8 +21,8 @@
  * 
  * @author Peter Güttinger
  */
-@NonNullByDefault({DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.FIELD})
+@NonNullByDefault
 package ch.njol.skript.command;
 
-import org.eclipse.jdt.annotation.DefaultLocation;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+

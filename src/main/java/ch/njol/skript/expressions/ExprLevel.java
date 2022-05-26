@@ -25,6 +25,7 @@ import org.bukkit.event.player.PlayerLevelChangeEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Converter;
@@ -80,15 +81,15 @@ public class ExprLevel extends SimplePropertyExpression<Player, Integer> {
 	public Class<?>[] acceptChange(final ChangeMode mode) {
 		if (mode == ChangeMode.REMOVE_ALL)
 			return null;
-		if (getParser().isCurrentEvent(PlayerRespawnEvent.class) && !getParser().getHasDelayBefore().isTrue()) {
+		if (ScriptLoader.isCurrentEvent(PlayerRespawnEvent.class) && !ScriptLoader.hasDelayBefore.isTrue()) {
 			Skript.error("Cannot change a player's level in a respawn event. Add a delay of 1 tick or change the 'new level' in a death event.");
 			return null;
 		}
-		if (getParser().isCurrentEvent(PlayerDeathEvent.class) && getTime() == 0 && getExpr().isDefault() && !getParser().getHasDelayBefore().isTrue()) {
+		if (ScriptLoader.isCurrentEvent(PlayerDeathEvent.class) && getTime() == 0 && getExpr().isDefault() && !ScriptLoader.hasDelayBefore.isTrue()) {
 			Skript.warning("Changing the player's level in a death event will change the player's level before he dies. " +
 					"Use either 'past level of player' or 'new level of player' to clearly state whether to change the level before or after he dies.");
 		}
-		if (getTime() == -1 && !getParser().isCurrentEvent(PlayerDeathEvent.class))
+		if (getTime() == -1 && !ScriptLoader.isCurrentEvent(PlayerDeathEvent.class))
 			return null;
 		return new Class[] {Number.class};
 	}

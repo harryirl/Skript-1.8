@@ -50,12 +50,20 @@ import ch.njol.util.StringUtils;
 public abstract class Functions {
 
 	private static final String INVALID_FUNCTION_DEFINITION =
-		"Invalid function definition. Please check for " +
-			"typos and make sure that the function's name " +
-			"only contains letters and underscores. " +
-			"Refer to the documentation for more information.";
+			"Invalid function definition. Please check for " +
+					"typos and make sure that the function's name " +
+					"only contains letters and underscores. " +
+					"Refer to the documentation for more information.";
 
 	private Functions() {}
+	
+	final static class FunctionData {
+		final Function<?> function;
+		
+		public FunctionData(final Function<?> function) {
+			this.function = function;
+		}
+	}
 	
 	@Nullable
 	public static ScriptFunction<?> currentFunction = null;
@@ -84,7 +92,7 @@ public abstract class Functions {
 	
 	/**
 	 * Registers a function written in Java.
-	 *
+	 * @param function
 	 * @return The passed function
 	 */
 	public static JavaFunction<?> registerFunction(JavaFunction<?> function) {
@@ -113,13 +121,13 @@ public abstract class Functions {
 	@Nullable
 	public static Function<?> loadFunction(SectionNode node) {
 		SkriptLogger.setNode(node);
-		String key = node.getKey();
-		String definition = ScriptLoader.replaceOptions(key == null ? "" : key);
+		final String key = node.getKey();
+		final String definition = ScriptLoader.replaceOptions(key == null ? "" : key);
 		assert definition != null;
-		Matcher m = functionPattern.matcher(definition);
+		final Matcher m = functionPattern.matcher(definition);
 		if (!m.matches()) // We have checks when loading the signature, but matches() must be called anyway
 			return error(INVALID_FUNCTION_DEFINITION);
-		String name = "" + m.group(1);
+		final String name = "" + m.group(1);
 		
 		Namespace namespace = globalFunctions.get(name);
 		if (namespace == null) {
@@ -128,14 +136,14 @@ public abstract class Functions {
 		Signature<?> sign = namespace.getSignature(name);
 		if (sign == null) // Signature parsing failed, probably: null signature
 			return null; // This has been reported before...
-		Parameter<?>[] params = sign.parameters;
-		ClassInfo<?> c = sign.returnType;
+		final Parameter<?>[] params = sign.parameters;
+		final ClassInfo<?> c = sign.returnType;
 		
 		if (Skript.debug() || node.debug())
 			Skript.debug("function " + name + "(" + StringUtils.join(params, ", ") + ")"
-				+ (c != null ? " :: " + (sign.isSingle() ? c.getName().getSingular() : c.getName().getPlural()) : "") + ":");
+					+ (c != null ? " :: " + (sign.isSingle() ? c.getName().getSingular() : c.getName().getPlural()) : "") + ":");
 		
-		Function<?> f = new ScriptFunction<>(sign, node);
+		final Function<?> f = new ScriptFunction<>(sign, node);
 		
 		// Register the function for signature
 		namespace.addFunction(f);
@@ -152,12 +160,13 @@ public abstract class Functions {
 	@Nullable
 	public static Signature<?> loadSignature(String script, SectionNode node) {
 		SkriptLogger.setNode(node);
-		String key = node.getKey();
-		String definition = ScriptLoader.replaceOptions(key == null ? "" : key);
-		Matcher m = functionPattern.matcher(definition);
+		final String key = node.getKey();
+		final String definition = ScriptLoader.replaceOptions(key == null ? "" : key);
+		assert definition != null;
+		final Matcher m = functionPattern.matcher(definition);
 		if (!m.matches())
 			return signError(INVALID_FUNCTION_DEFINITION);
-		String name = "" + m.group(1);
+		final String name = "" + m.group(1);
 		
 		// Ensure there are no duplicate functions
 		if (globalFunctions.containsKey(name)) {
@@ -171,38 +180,38 @@ public abstract class Functions {
 			}
 		}
 		
-		String args = m.group(2);
-		String returnType = m.group(3);
-		List<Parameter<?>> params = new ArrayList<>();
+		final String args = m.group(2);
+		final String returnType = m.group(3);
+		final List<Parameter<?>> params = new ArrayList<>();
 		int j = 0;
 		for (int i = 0; i <= args.length(); i = SkriptParser.next(args, i, ParseContext.DEFAULT)) {
 			if (i == -1)
 				return signError("Invalid text/variables/parentheses in the arguments of this function");
 			if (i == args.length() || args.charAt(i) == ',') {
-				String arg = args.substring(j, i);
+				final String arg = args.substring(j, i);
 				
 				if (arg.isEmpty()) // Zero-argument function
 					break;
 				
 				// One ore more arguments for this function
-				Matcher n = paramPattern.matcher(arg);
+				final Matcher n = paramPattern.matcher(arg);
 				if (!n.matches())
 					return signError("The " + StringUtils.fancyOrderNumber(params.size() + 1) + " argument's definition is invalid. It should look like 'name: type' or 'name: type = default value'.");
-				String paramName = "" + n.group(1);
-				for (Parameter<?> p : params) {
+				final String paramName = "" + n.group(1);
+				for (final Parameter<?> p : params) {
 					if (p.name.toLowerCase(Locale.ENGLISH).equals(paramName.toLowerCase(Locale.ENGLISH)))
 						return signError("Each argument's name must be unique, but the name '" + paramName + "' occurs at least twice.");
 				}
 				ClassInfo<?> c;
 				c = Classes.getClassInfoFromUserInput("" + n.group(2));
-				NonNullPair<String, Boolean> pl = Utils.getEnglishPlural("" + n.group(2));
+				final NonNullPair<String, Boolean> pl = Utils.getEnglishPlural("" + n.group(2));
 				if (c == null)
 					c = Classes.getClassInfoFromUserInput(pl.getFirst());
 				if (c == null)
 					return signError("Cannot recognise the type '" + n.group(2) + "'");
 				String rParamName = paramName.endsWith("*") ? paramName.substring(0, paramName.length() - 3) +
 									(!pl.getSecond() ? "::1" : "") : paramName;
-				Parameter<?> p = Parameter.newInstance(rParamName, c, !pl.getSecond(), n.group(3));
+				final Parameter<?> p = Parameter.newInstance(rParamName, c, !pl.getSecond(), n.group(3));
 				if (p == null)
 					return null;
 				params.add(p);
@@ -231,8 +240,7 @@ public abstract class Functions {
 		}
 		
 		@SuppressWarnings({"unchecked", "null"})
-		Signature<?> sign = new Signature<>(script, name,
-			params.toArray(new Parameter[0]), (ClassInfo<Object>) returnClass, singleReturn);
+		Signature<?> sign = new Signature<>(script, name, params.toArray(new Parameter[params.size()]), (ClassInfo<Object>) returnClass, singleReturn);
 
 		// Register this signature
 		Namespace.Key namespaceKey = new Namespace.Key(Namespace.Origin.SCRIPT, script);
@@ -250,7 +258,7 @@ public abstract class Functions {
 	 * @return Null.
 	 */
 	@Nullable
-	private static Function<?> error(String error) {
+	private static Function<?> error(final String error) {
 		Skript.error(error);
 		return null;
 	}
@@ -261,7 +269,7 @@ public abstract class Functions {
 	 * @return Null.
 	 */
 	@Nullable
-	private static Signature<?> signError(String error) {
+	private static Signature<?> signError(final String error) {
 		Skript.error(error);
 		return null;
 	}
@@ -300,7 +308,8 @@ public abstract class Functions {
 	
 	/**
 	 * Remember to call {@link #validateFunctions()} after calling this
-	 *
+	 * 
+	 * @param script
 	 * @return How many functions were removed
 	 */
 	public static int clearFunctions(String script) {
@@ -311,7 +320,12 @@ public abstract class Functions {
 		}
 		
 		// Remove references to this namespace from global functions
-		globalFunctions.values().removeIf(loopedNamespaced -> loopedNamespaced == namespace);
+		Iterator<Namespace> it = globalFunctions.values().iterator();
+		while (it.hasNext()) {
+			if (it.next() == namespace) {
+				it.remove();
+			}
+		}
 		
 		// Queue references to signatures we have for revalidation
 		// Can't validate here, because other scripts might be loaded soon
@@ -326,7 +340,7 @@ public abstract class Functions {
 	}
 	
 	public static void validateFunctions() {
-		for (FunctionReference<?> c : toValidate)
+		for (final FunctionReference<?> c : toValidate)
 			c.validateFunction(false);
 		toValidate.clear();
 	}
@@ -336,7 +350,12 @@ public abstract class Functions {
 	 */
 	public static void clearFunctions() {
 		// Keep Java functions, remove everything else		
-		globalFunctions.values().removeIf(namespace -> namespace != javaNamespace);
+		Iterator<Namespace> it = globalFunctions.values().iterator();
+		while (it.hasNext()) {
+			if (it.next() != javaNamespace) {
+				it.remove();
+			}
+		}
 		namespaces.clear();
 		
 		assert toValidate.isEmpty() : toValidate;

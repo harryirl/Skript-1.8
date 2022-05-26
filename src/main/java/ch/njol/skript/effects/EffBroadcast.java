@@ -18,8 +18,6 @@
  */
 package ch.njol.skript.effects;
 
-import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.LiteralUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -43,43 +41,39 @@ import ch.njol.util.Kleenean;
 		"message to all players instead of broadcasting it."})
 @Examples({"broadcast \"Welcome %player% to the server!\"",
 		"broadcast \"Woah! It's a message!\""})
-@Since("1.0, 2.6 (broadcasting objects)")
+@Since("1.0")
 public class EffBroadcast extends Effect {
-
 	static {
-		Skript.registerEffect(EffBroadcast.class, "broadcast %objects% [(to|in) %-worlds%]");
+		Skript.registerEffect(EffBroadcast.class, "broadcast %strings% [(to|in) %-worlds%]");
 	}
-
-	@SuppressWarnings("NotNullFieldNotInitialized")
-	private Expression<?> messages;
+	
+	@SuppressWarnings("null")
+	private Expression<String> messages;
 	@Nullable
 	private Expression<World> worlds;
-
-	@SuppressWarnings("unchecked")
+	
+	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
-		messages = LiteralUtils.defendExpression(exprs[0]);
-		worlds = (Expression<World>) exprs[1];
-		return LiteralUtils.canInitSafely(messages);
+	public boolean init(final Expression<?>[] vars, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
+		messages = (Expression<String>) vars[0];
+		worlds = (Expression<World>) vars[1];
+		return true;
 	}
 	
 	@Override
-	public void execute(Event e) {
-		World[] worlds = this.worlds != null ? this.worlds.getArray(e) : null;
-
-		for (Object object : messages.getArray(e)) {
-			String string = object instanceof String ? (String) object : Classes.toString(object);
-
+	public void execute(final Event e) {
+		for (final String m : messages.getArray(e)) {
+			final Expression<World> worlds = this.worlds;
 			if (worlds == null) {
 				// not Bukkit.broadcastMessage to ignore permissions
-				for (Player player : PlayerUtils.getOnlinePlayers()) {
-					player.sendMessage(string);
+				for (final Player p : PlayerUtils.getOnlinePlayers()) {
+					p.sendMessage(m);
 				}
-				Bukkit.getConsoleSender().sendMessage(string);
+				Bukkit.getConsoleSender().sendMessage(m);
 			} else {
-				for (World w : worlds) {
-					for (Player player : w.getPlayers()) {
-						player.sendMessage(string);
+				for (final World w : worlds.getArray(e)) {
+					for (final Player p : w.getPlayers()) {
+						p.sendMessage(m);
 					}
 				}
 			}
@@ -87,7 +81,8 @@ public class EffBroadcast extends Effect {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(final @Nullable Event e, final boolean debug) {
+		final Expression<World> worlds = this.worlds;
 		return "broadcast " + messages.toString(e, debug) + (worlds == null ? "" : " to " + worlds.toString(e, debug));
 	}
 	

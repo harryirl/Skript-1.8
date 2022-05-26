@@ -31,21 +31,15 @@ public class CountingLogHandler extends LogHandler {
 	
 	private int count;
 	
-	public CountingLogHandler(Level minimum) {
+	public CountingLogHandler(final Level minimum) {
 		this.minimum = minimum.intValue();
 	}
 	
 	@Override
-	public LogResult log(LogEntry entry) {
+	public LogResult log(final LogEntry entry) {
 		if (entry.level.intValue() >= minimum)
 			count++;
 		return LogResult.LOG;
-	}
-	
-	@Override
-	public CountingLogHandler start() {
-		SkriptLogger.startLogHandler(this);
-		return this;
 	}
 	
 	public int getCount() {

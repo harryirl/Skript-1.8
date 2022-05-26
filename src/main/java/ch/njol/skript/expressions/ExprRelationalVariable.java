@@ -77,7 +77,6 @@ public class ExprRelationalVariable<T> extends SimpleExpression<T> {
 	private Expression<Object> holders;
 
 	private ExprRelationalVariable<?> source;
-	private Class<? extends T>[] types;
 	private Class<T> superType;
 
 	public ExprRelationalVariable() {
@@ -90,7 +89,6 @@ public class ExprRelationalVariable<T> extends SimpleExpression<T> {
 			this.variables = source.variables;
 			this.holders = source.holders;
 		}
-		this.types = types;
 		this.superType = (Class<T>) Utils.getSuperType(types);
 	}
 
@@ -126,7 +124,7 @@ public class ExprRelationalVariable<T> extends SimpleExpression<T> {
 			}
 		}
 		try {
-			return Converters.convertArray(values.toArray(), types, superType);
+			return Converters.convertStrictly(values.toArray(), superType);
 		} catch (ClassCastException ex) {
 			return (T[]) Array.newInstance(superType, 0);
 		}

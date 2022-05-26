@@ -65,7 +65,6 @@ public class ExprMetadata<T> extends SimpleExpression<T> {
 	private Expression<String> values;
 	@Nullable
 	private Expression<Metadatable> holders;
-	private Class<? extends T>[] types;
 	private Class<T> superType;
 
 	public ExprMetadata() {
@@ -78,7 +77,6 @@ public class ExprMetadata<T> extends SimpleExpression<T> {
 			this.values = source.values;
 			this.holders = source.holders;
 		}
-		this.types = types;
 		this.superType = (Class<T>) Utils.getSuperType(types);
 	}
 
@@ -101,7 +99,7 @@ public class ExprMetadata<T> extends SimpleExpression<T> {
 			}
 		}
 		try {
-			return Converters.convertArray(values.toArray(), types, superType);
+			return Converters.convertStrictly(values.toArray(), superType);
 		} catch (ClassCastException e1) {
 			return (T[]) Array.newInstance(superType, 0);
 		}

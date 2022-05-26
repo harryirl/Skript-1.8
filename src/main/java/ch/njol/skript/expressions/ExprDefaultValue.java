@@ -49,7 +49,6 @@ public class ExprDefaultValue<T> extends SimpleExpression<T> {
 	}
 
 	private final ExprDefaultValue<?> source;
-	private final Class<? extends T>[] types;
 	private final Class<T> superType;
 	@Nullable
 	private Expression<Object> first;
@@ -68,7 +67,6 @@ public class ExprDefaultValue<T> extends SimpleExpression<T> {
 			this.first = source.first;
 			this.second = source.second;
 		}
-		this.types = types;
 		this.superType = (Class<T>) Utils.getSuperType(types);
 	}
 
@@ -85,7 +83,7 @@ public class ExprDefaultValue<T> extends SimpleExpression<T> {
 		Object[] first = this.first.getArray(e);
 		Object values[] = first.length != 0 ? first : second.getArray(e);
 		try {
-			return Converters.convertArray(values, types, superType);
+			return Converters.convertStrictly(values, superType);
 		} catch (ClassCastException e1) {
 			return (T[]) Array.newInstance(superType, 0);
 		}

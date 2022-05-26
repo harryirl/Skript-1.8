@@ -31,8 +31,6 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerItem;
-import ch.njol.skript.log.ParseLogHandler;
-import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.Kleenean;
 
 @Name("Assert")
@@ -43,7 +41,7 @@ public class EffAssert extends Effect  {
 
 	static {
 		if (TestMode.ENABLED)
-			Skript.registerEffect(EffAssert.class, "assert <.+> [(1¦to fail)] with %string%");
+			Skript.registerEffect(EffAssert.class, "assert <.+> with %string%");
 	}
 
 	@SuppressWarnings("null")
@@ -51,33 +49,13 @@ public class EffAssert extends Effect  {
 	
 	@SuppressWarnings("null")
 	private Expression<String> errorMsg;
-	
-	private boolean shouldFail;
 
 	@SuppressWarnings({"null", "unchecked"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		String conditionString = parseResult.regexes.get(0).group();
+		String cond = parseResult.regexes.get(0).group();
+		condition = Condition.parse(cond, "Can't understand this condition: " + cond);
 		errorMsg = (Expression<String>) exprs[0];
-		shouldFail = parseResult.mark != 0;
-		
-		ParseLogHandler logHandler = SkriptLogger.startParseLogHandler();
-		try {
-			condition = Condition.parse(conditionString, "Can't understand this condition: " + conditionString);
-			
-			if (shouldFail) {
-				return true;
-			}
-			
-			if (condition == null) {
-				logHandler.printError();
-			} else {
-				logHandler.printLog();
-			}
-		} finally {
-			logHandler.stop();
-		}
-		
 		return condition != null;
 	}
 
@@ -87,11 +65,7 @@ public class EffAssert extends Effect  {
 	@Nullable
 	@Override
 	public TriggerItem walk(Event e) {
-		if (shouldFail && condition == null) {
-			return getNext();
-		}
-		
-		if (condition.check(e) == shouldFail) {
+		if (!condition.check(e)) {
 			String msg = errorMsg.getSingle(e);
 			TestTracker.testFailed(msg != null ? msg : "assertation failed");
 			return null;

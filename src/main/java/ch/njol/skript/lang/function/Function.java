@@ -38,7 +38,7 @@ public abstract class Function<T> {
 	 */
 	public static boolean executeWithNulls = SkriptConfig.executeFunctionsWithMissingParams.value();
 
-	private final Signature<T> sign;
+	final Signature<T> sign;
 	
 	public Function(Signature<T> sign) {
 		this.sign = sign;
@@ -79,21 +79,26 @@ public abstract class Function<T> {
 	/**
 	 * Executes this function with given parameter.
 	 * @param params Function parameters. Must contain at least
-	 * {@link Signature#getMinParameters()} elements and at most
-	 * {@link Signature#getMaxParameters()} elements.
+	 * {@link #getMinParameters()} elements and at most
+	 * {@link #getMaxParameters()} elements.
 	 * @return The result(s) of this function
 	 */
 	@SuppressWarnings("null")
 	@Nullable
-	public final T[] execute(Object[][] params) {
-		FunctionEvent<? extends T> e = new FunctionEvent<>(this);
+	public final T[] execute(final Object[][] params) {
+		if (params.length > 0 && params[0].length == 0) // Parameters exist, but parameters are not of the correct type 
+			return null;
+		
+		final FunctionEvent<? extends T> e = new FunctionEvent<>(this);
 		
 		// Call function event only if requested by addon
 		// Functions may be called VERY often, so this might have performance impact
 		if (Functions.callFunctionEvents)
 			Bukkit.getPluginManager().callEvent(e);
 		
-		// Parameters taken by the function.
+		/**
+		 * Parameters taken by the function.
+		 */
 		Parameter<?>[] parameters = sign.getParameters();
 		
 		if (params.length > parameters.length) {
@@ -103,7 +108,8 @@ public abstract class Function<T> {
 		}
 		
 		// If given less that max amount of parameters, pad remaining with nulls
-		Object[][] ps = params.length < parameters.length ? Arrays.copyOf(params, parameters.length) : params;
+		final Object[][] ps = params.length < parameters.length ? Arrays.copyOf(params, parameters.length) : params;
+		assert ps != null;
 		
 		// Execute parameters or default value expressions
 		for (int i = 0; i < parameters.length; i++) {
@@ -120,18 +126,18 @@ public abstract class Function<T> {
 			 * really have a concept of nulls, it was changed. The config
 			 * option may be removed in future.
 			 */
-			if (!executeWithNulls && val.length == 0)
+			if (!executeWithNulls && (val == null || val.length == 0))
 				return null;
 			ps[i] = val;
 		}
 		
 		// Execute function contents
-		T[] r = execute(e, ps);
+		final T[] r = execute(e, ps);
 		// Assert that return value type makes sense
 		assert sign.getReturnType() == null ? r == null : r == null
-			|| (r.length <= 1 || !sign.isSingle()) && !CollectionUtils.contains(r, null)
-			&& sign.getReturnType().getC().isAssignableFrom(r.getClass().getComponentType())
-			: this + "; " + Arrays.toString(r);
+				|| (r.length <= 1 || !sign.isSingle()) && !CollectionUtils.contains(r, null)
+				&& sign.getReturnType().getC().isAssignableFrom(r.getClass().getComponentType())
+				: this + "; " + Arrays.toString(r);
 				
 		// If return value is empty array, return null
 		// Otherwise, return the value (nullable)
@@ -149,7 +155,7 @@ public abstract class Function<T> {
 	 * @return Function return value(s).
 	 */
 	@Nullable
-	public abstract T[] execute(FunctionEvent<?> e, Object[][] params);
+	public abstract T[] execute(FunctionEvent<?> e, final Object[][] params);
 
 	/**
 	 * Resets the return value of the {@code Function}.

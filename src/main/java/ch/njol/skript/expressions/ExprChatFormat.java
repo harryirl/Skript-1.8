@@ -18,11 +18,7 @@
  */
 package ch.njol.skript.expressions;
 
-import org.apache.commons.lang.StringUtils;
-import org.bukkit.event.Event;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.eclipse.jdt.annotation.Nullable;
-
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.doc.Description;
@@ -34,6 +30,10 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import org.apache.commons.lang.StringUtils;
+import org.bukkit.event.Event;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Chat Format")
 @Description("Can be used to get/retrieve the chat format. The sender of a message is " +
@@ -66,7 +66,7 @@ public class ExprChatFormat extends SimpleExpression<String>{
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(AsyncPlayerChatEvent.class)){
+		if (!ScriptLoader.isCurrentEvent(AsyncPlayerChatEvent.class)){
 			Skript.error("The expression 'chat format' may only be used in chat events");
 			return false;
 		}

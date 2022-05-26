@@ -122,11 +122,6 @@ public abstract class Updater {
 			CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
 			assert future != null;
 			return future;
-		} else if (currentRelease.flavor.contains("nightly")) {
-			releaseStatus = ReleaseStatus.DEVELOPMENT;
-			CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
-			assert future != null;
-			return future;
 		}
 		
 		state = UpdaterState.CHECKING; // We started checking for updates

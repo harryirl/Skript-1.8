@@ -18,10 +18,8 @@
  */
 package ch.njol.skript.expressions;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 
-import ch.njol.skript.util.LiteralUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -48,20 +46,21 @@ public class ExprSortedList extends SimpleExpression<Object> {
 		Skript.registerExpression(ExprSortedList.class, Object.class, ExpressionType.COMBINED, "sorted %objects%");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
+	@SuppressWarnings("null")
 	private Expression<?> list;
 
 	@Override
+	@SuppressWarnings({"null", "unchecked"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		list = LiteralUtils.defendExpression(exprs[0]);
-		return LiteralUtils.canInitSafely(list);
+		list = exprs[0].getConvertedExpression(Object.class);
+		return list != null;
 	}
 
 	@Override
 	@Nullable
 	protected Object[] get(Event e) {
-		Object[] unsorted = list.getArray(e);
-		Object[] sorted = (Object[]) Array.newInstance(getReturnType(), unsorted.length); // Not yet sorted...
+		Object[] unsorted = list.getAll(e);
+		Object[] sorted = new Object[unsorted.length]; // Not yet sorted...
 		
 		for (int i = 0; i < sorted.length; i++) {
 			Object value = unsorted[i];
@@ -88,8 +87,8 @@ public class ExprSortedList extends SimpleExpression<Object> {
 	}
 
 	@Override
-	public Class<?> getReturnType() {
-		return list.getReturnType();
+	public Class<? extends Object> getReturnType() {
+		return Object.class;
 	}
 
 	@Override

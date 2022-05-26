@@ -46,7 +46,6 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Wither;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
@@ -144,10 +143,7 @@ public class DefaultComparators {
 		Comparators.registerComparator(Slot.class, ItemType.class, new Comparator<Slot, ItemType>() {
 			@Override
 			public Relation compare(Slot slot, ItemType item) {
-				ItemStack stack = slot.getItem();
-				if (stack == null)
-					return Comparators.compare(new ItemType(Material.AIR), item);
-				return Comparators.compare(new ItemType(stack), item);
+				return Relation.get(item.isOfType(slot.getItem()));
 			}
 			
 			@Override
@@ -160,7 +156,7 @@ public class DefaultComparators {
 		Comparators.registerComparator(ItemStack.class, ItemType.class, new Comparator<ItemStack, ItemType>() {
 			@Override
 			public Relation compare(final ItemStack is, final ItemType it) {
-				return Comparators.compare(new ItemType(is), it);
+				return Relation.get(it.isOfType(is));
 			}
 			
 			@Override
@@ -207,12 +203,8 @@ public class DefaultComparators {
 					return Relation.NOT_EQUAL;
 				for (ItemData myType : i1.getTypes()) {
 					for (ItemData otherType : i2.getTypes()) {
-						if (myType.matchPlain(otherType)) {
-							return Relation.EQUAL;
-						}
-						boolean plain = myType.isPlain() != otherType.isPlain();
 						// Don't require an EXACT match if the other ItemData is an alias. They only need to share a material.
-						if (myType.matchAlias(otherType).isAtLeast(plain ? MatchQuality.EXACT : otherType.isAlias() && !myType.isAlias() ? MatchQuality.SAME_MATERIAL : MatchQuality.SAME_ITEM)) {
+						if (myType.matchAlias(otherType).isAtLeast((otherType.isAlias() && !myType.isAlias()) ? MatchQuality.SAME_ITEM : MatchQuality.EXACT)) {
 							return Relation.EQUAL;
 						}
 					}

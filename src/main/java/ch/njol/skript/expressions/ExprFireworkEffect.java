@@ -23,10 +23,7 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.NoDoc;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -35,12 +32,7 @@ import ch.njol.skript.util.Color;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Firework Effect")
-@Description("Represents a 'firework effect' which can be used in the <a href='effects.html#EffFireworkLaunch'>launch firework</a> effect.")
-@Examples({"launch flickering trailing burst firework colored blue and green at player",
-	"launch trailing flickering star coloured purple, yellow, blue, green and red fading to pink at target entity",
-	"launch ball large coloured red, purple and white fading to light green and black at player's location with duration 1"})
-@Since("2.4")
+@NoDoc
 public class ExprFireworkEffect extends SimpleExpression<FireworkEffect> {
 
 	static {

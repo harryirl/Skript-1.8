@@ -23,6 +23,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.HealthUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -58,7 +59,7 @@ public class ExprDamage extends SimpleExpression<Number> {
 	
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(EntityDamageEvent.class, VehicleDamageEvent.class)) {
+		if (!ScriptLoader.isCurrentEvent(EntityDamageEvent.class, VehicleDamageEvent.class)) {
 			Skript.error("The expression 'damage' may only be used in damage events", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}

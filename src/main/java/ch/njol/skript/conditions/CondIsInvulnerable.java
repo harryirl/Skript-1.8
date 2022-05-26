@@ -20,7 +20,6 @@ package ch.njol.skript.conditions;
 
 import org.bukkit.entity.Entity;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -34,8 +33,7 @@ import ch.njol.skript.doc.Since;
 public class CondIsInvulnerable extends PropertyCondition<Entity> {
 	
 	static {
-		if (Skript.methodExists(Entity.class, "isInvulnerable"))
-			register(CondIsInvulnerable.class, PropertyType.BE, "invulnerable", "entities");
+		register(CondIsInvulnerable.class, PropertyType.BE, "invulnerable", "entities");
 	}
 	
 	@Override

@@ -49,12 +49,12 @@ public class EffOpenInventory extends Effect {
 	
 	static {
 		Skript.registerEffect(EffOpenInventory.class,
-				"(open|show) ((0¦(crafting [table]|workbench)|1¦chest|2¦anvil|3¦hopper|4¦dropper|5¦dispenser) (view|window|inventory|)|%-inventory/inventorytype%) (to|for) %players%",
+				"(open|show) ((0¦(crafting [table]|workbench)|1¦chest|2¦anvil|3¦hopper|4¦dropper|5¦dispenser) (view|window|inventory|)|%-inventory%) (to|for) %players%",
 				"close [the] inventory [view] (to|of|for) %players%", "close %players%'[s] inventory [view]");
 	}
 	
 	@Nullable
-	private Expression<?> invi;
+	private Expression<Inventory> invi;
 	
 	boolean open;
 	private int invType;
@@ -89,7 +89,7 @@ public class EffOpenInventory extends Effect {
 		}
 		
 		open = matchedPattern == 0;
-		invi = open ? exprs[0] : null;
+		invi = open ? (Expression<Inventory>) exprs[0] : null;
 		players = (Expression<Player>) exprs[exprs.length - 1];
 		if (openFlag == 1 && invi != null) {
 			Skript.warning("Using 'show' inventory instead of 'open' is not recommended as it will eventually show an unmodifiable view of the inventory in the future.");
@@ -100,18 +100,7 @@ public class EffOpenInventory extends Effect {
 	@Override
 	protected void execute(final Event e) {
 		if (invi != null) {
-			Inventory i;
-			
-			assert invi != null;
-			Object o = invi.getSingle(e);
-			if (o instanceof Inventory) {
-				i = (Inventory) o;
-			} else if (o instanceof InventoryType) {
-				i = Bukkit.createInventory(null, (InventoryType) o);
-			} else {
-				return;
-			}
-			
+			final Inventory i = invi.getSingle(e);
 			if (i == null)
 				return;
 			for (final Player p : players.getArray(e)) {

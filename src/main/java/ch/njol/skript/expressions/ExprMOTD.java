@@ -24,6 +24,7 @@ import org.bukkit.event.server.ServerListPingEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -56,8 +57,8 @@ public class ExprMOTD extends SimpleExpression<String> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		boolean isServerPingEvent = getParser().isCurrentEvent(ServerListPingEvent.class) ||
-				(PAPER_EVENT_EXISTS && getParser().isCurrentEvent(PaperServerListPingEvent.class));
+		boolean isServerPingEvent = ScriptLoader.isCurrentEvent(ServerListPingEvent.class) ||
+				(PAPER_EVENT_EXISTS && ScriptLoader.isCurrentEvent(PaperServerListPingEvent.class));
 		if (parseResult.mark == 2 && !isServerPingEvent) {
 			Skript.error("The 'shown' MOTD expression can't be used outside of a server list ping event");
 			return false;
@@ -79,7 +80,7 @@ public class ExprMOTD extends SimpleExpression<String> {
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (!isDefault) {
-			if (getParser().getHasDelayBefore().isTrue()) {
+			if (ScriptLoader.hasDelayBefore.isTrue()) {
 				Skript.error("Can't change the MOTD anymore after the server list ping event has already passed");
 				return null;
 			}

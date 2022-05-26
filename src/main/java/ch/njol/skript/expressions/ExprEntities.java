@@ -46,6 +46,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.BlockingLogHandler;
 import ch.njol.skript.log.LogHandler;
+import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.iterator.CheckedIterator;
@@ -116,7 +117,8 @@ public class ExprEntities extends SimpleExpression<Entity> {
 	public boolean isLoopOf(String s) {
 		if (!(types instanceof Literal<?>))
 			return false;
-		try (LogHandler ignored = new BlockingLogHandler().start()) {
+		LogHandler h = SkriptLogger.startLogHandler(new BlockingLogHandler());
+		try {
 			EntityData<?> d = EntityData.parseWithoutIndefiniteArticle(s);
 			if (d != null) {
 				for (EntityData<?> t : ((Literal<EntityData<?>>) types).getAll()) {
@@ -126,6 +128,8 @@ public class ExprEntities extends SimpleExpression<Entity> {
 				}
 				return true;
 			}
+		} finally {
+			h.stop();
 		}
 		return false;
 	}

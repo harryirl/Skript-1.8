@@ -25,6 +25,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Iterator;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Represents a class which is a container, i.e. something like a collection.<br>
  * If this is used, a {@link ContainerType} annotation must be added to the implementing class which holds the class instance the containser holds.
@@ -37,6 +39,7 @@ public interface Container<T> {
 	@Target(ElementType.TYPE)
 	@Retention(RetentionPolicy.RUNTIME)
 	@Documented
+	@NonNullByDefault
 	public static @interface ContainerType {
 		Class<?> value();
 	}

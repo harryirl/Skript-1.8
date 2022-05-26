@@ -29,7 +29,8 @@ import ch.njol.util.Checker;
 
 /**
  * A condition which must be fulfilled for the trigger to continue. If the condition is in a section the behaviour depends on the section.
- *
+ * 
+ * @author Peter Güttinger
  * @see Skript#registerCondition(Class, String...)
  */
 public abstract class Condition extends Statement {
@@ -47,17 +48,19 @@ public abstract class Condition extends Statement {
 	 * @param e the event to check
 	 * @return <code>true</code> if the condition is satisfied, <code>false</code> otherwise or if the condition doesn't apply to this event.
 	 */
-	public abstract boolean check(Event e);
+	public abstract boolean check(final Event e);
 	
 	@Override
-	public final boolean run(Event e) {
+	public final boolean run(final Event e) {
 		return check(e);
 	}
 	
 	/**
 	 * Sets the negation state of this condition. This will change the behaviour of {@link Expression#check(Event, Checker, boolean)}.
+	 * 
+	 * @param invert
 	 */
-	protected final void setNegated(boolean invert) {
+	protected final void setNegated(final boolean invert) {
 		negated = invert;
 	}
 	
@@ -70,7 +73,7 @@ public abstract class Condition extends Statement {
 	
 	@SuppressWarnings({"rawtypes", "unchecked", "null"})
 	@Nullable
-	public static Condition parse(String s, @Nullable String defaultError) {
+	public static Condition parse(String s, final String defaultError) {
 		s = s.trim();
 		while (s.startsWith("(") && SkriptParser.next(s, 0, ParseContext.DEFAULT) == s.length())
 			s = s.substring(1, s.length() - 1);

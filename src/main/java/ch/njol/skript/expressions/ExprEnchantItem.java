@@ -23,6 +23,7 @@ import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -56,7 +57,7 @@ public class ExprEnchantItem extends SimpleExpression<ItemType> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(EnchantItemEvent.class) && !getParser().isCurrentEvent(PrepareItemEnchantEvent.class)) {
+		if (!ScriptLoader.isCurrentEvent(EnchantItemEvent.class) && !ScriptLoader.isCurrentEvent(PrepareItemEnchantEvent.class)) {
 			Skript.error("The enchant item is only usable in an enchant prepare event or enchant event.", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}

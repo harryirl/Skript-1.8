@@ -27,6 +27,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
@@ -42,7 +43,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.DefaultClasses;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
@@ -72,7 +72,7 @@ public class ExprBurnCookTime extends PropertyExpression<Block, Timespan> {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
 		cookTime = parseResult.mark == 1;
 		isEvent = matchedPattern == 0;
-		if (isEvent && !getParser().isCurrentEvent(FurnaceBurnEvent.class)) {
+		if (isEvent && !ScriptLoader.isCurrentEvent(FurnaceBurnEvent.class)) {
 			Skript.error("Cannot use 'burning time' outside a fuel burn event.");
 			return false;
 		}
@@ -124,7 +124,8 @@ public class ExprBurnCookTime extends PropertyExpression<Block, Timespan> {
 			return;
 
 		Function<Timespan, Timespan> value = null;
-		ClassInfo<Timespan> ci = DefaultClasses.TIMESPAN;
+		ClassInfo<Timespan> ci = Classes.getExactClassInfo(Timespan.class);
+		assert ci != null;
 		Arithmetic<Timespan, Timespan> arithmetic = ci.getRelativeMath();
 		Timespan changed = (Timespan) delta[0];
 		assert arithmetic != null;

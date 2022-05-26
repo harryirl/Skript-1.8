@@ -78,7 +78,8 @@ public class ExprRawName extends SimpleExpression<String> {
 	@SuppressWarnings("null")
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
-		return "minecraft name of " + types.toString(e, debug);
+		String[] strs = get(e);
+		if (strs == null) return "";
+		return Arrays.toString(strs);
 	}
-	
 }

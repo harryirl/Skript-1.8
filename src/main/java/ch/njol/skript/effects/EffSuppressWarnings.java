@@ -20,9 +20,7 @@ package ch.njol.skript.effects;
 
 import java.io.File;
 
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.doc.Description;
@@ -34,6 +32,8 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.util.ScriptOptions;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Locally Suppress Warning")
 @Description("Suppresses target warnings from the current script.")
@@ -50,7 +50,7 @@ public class EffSuppressWarnings extends Effect {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		Config cs = getParser().getCurrentScript();
+		Config cs = ScriptLoader.currentScript;
 		if (cs == null) {
 			Skript.error("You can only suppress warnings for script files!");
 			return false;

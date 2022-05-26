@@ -26,14 +26,8 @@ package ch.njol.skript.log;
 public class BlockingLogHandler extends LogHandler {
 	
 	@Override
-	public LogResult log(LogEntry entry) {
+	public LogResult log(final LogEntry entry) {
 		return LogResult.DO_NOT_LOG;
-	}
-	
-	@Override
-	public BlockingLogHandler start() {
-		SkriptLogger.startLogHandler(this);
-		return this;
 	}
 	
 }

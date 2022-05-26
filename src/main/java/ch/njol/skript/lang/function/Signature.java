@@ -123,5 +123,4 @@ public class Signature<T> {
 	public int hashCode() {
 		return name.hashCode();
 	}
-	
 }

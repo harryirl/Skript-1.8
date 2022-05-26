@@ -18,28 +18,17 @@
  */
 package ch.njol.skript.log;
 
-import java.io.Closeable;
-
-import ch.njol.util.OpenCloseable;
-
 /**
- * A log handler is used to handle Skripts logging.
- * A log handler is local to the thread it is started on.
- * <br>
- * Log handlers should always be stopped
- * when they are no longer needed.
- *
- * @see SkriptLogger#startLogHandler(LogHandler)
  * @author Peter Güttinger
  */
-public abstract class LogHandler implements Closeable, OpenCloseable {
+public abstract class LogHandler {
 	
-	public enum LogResult {
-		LOG, CACHED, DO_NOT_LOG
+	public static enum LogResult {
+		LOG, CACHED, DO_NOT_LOG;
 	}
 	
 	/**
-	 * @param entry entry to log
+	 * @param entry
 	 * @return Whether to print the specified entry or not.
 	 */
 	public abstract LogResult log(LogEntry entry);
@@ -59,24 +48,12 @@ public abstract class LogHandler implements Closeable, OpenCloseable {
 	}
 	
 	/**
-	 * A convenience method for {@link SkriptLogger#startLogHandler(LogHandler)}.
-	 * <br>
-	 * Implementations should override this to set the return type
-	 * to the implementing class.
+	 * Mayby some day, we can use this - needs some parser rewrites to avoid
+	 * warnings though.
 	 */
-	public LogHandler start() {
-		SkriptLogger.startLogHandler(this);
-		return this;
-	}
-	
-	@Override
-	public void open() {
-		start();
-	}
-	
-	@Override
-	public void close() {
-		stop();
-	}
+//	@Override
+//	public final void close() throws Exception {
+//		stop();
+//	}
 	
 }

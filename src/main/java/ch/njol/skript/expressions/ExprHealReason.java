@@ -23,6 +23,7 @@ import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.eclipse.jdt.annotation.Nullable;
 
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -50,7 +51,7 @@ public class ExprHealReason extends SimpleExpression<RegainReason> {
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(EntityRegainHealthEvent.class)) {
+		if (!ScriptLoader.isCurrentEvent(EntityRegainHealthEvent.class)) {
 			Skript.error("Heal reason can only be used in an on heal event", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}

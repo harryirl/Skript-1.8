@@ -53,9 +53,6 @@ public class ClassInfo<T> implements Debuggable {
 	private Parser<? extends T> parser = null;
 	
 	@Nullable
-	private Cloner<T> cloner = null;
-	
-	@Nullable
 	private Pattern[] userInputPatterns = null;
 	
 	@Nullable
@@ -122,16 +119,6 @@ public class ClassInfo<T> implements Debuggable {
 	public ClassInfo<T> parser(final Parser<? extends T> parser) {
 		assert this.parser == null;
 		this.parser = parser;
-		return this;
-	}
-	
-	/**
-	 * @param cloner A {@link Cloner} to clone values when setting variables
-	 *                  or passing function arguments.
-	 */
-	public ClassInfo<T> cloner(Cloner<T> cloner) {
-		assert this.cloner == null;
-		this.cloner = cloner;
 		return this;
 	}
 	
@@ -312,19 +299,6 @@ public class ClassInfo<T> implements Debuggable {
 	@Nullable
 	public Parser<? extends T> getParser() {
 		return parser;
-	}
-	
-	@Nullable
-	public Cloner<? extends T> getCloner() {
-		return cloner;
-	}
-	
-	/**
-	 * Clones the given object using {@link ClassInfo#cloner},
-	 * returning the given object if no {@link Cloner} is registered.
-	 */
-	public T clone(T t) {
-		return cloner == null ? t : cloner.clone(t);
 	}
 	
 	@Nullable

@@ -22,6 +22,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
@@ -54,7 +55,7 @@ public class EffKeepInventory extends Effect {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		keepItems = matchedPattern == 0 || parseResult.mark == 1;
 		keepExp = matchedPattern == 1 || parseResult.mark == 1;
-		if (!getParser().isCurrentEvent(PlayerDeathEvent.class)) {
+		if (!ScriptLoader.isCurrentEvent(PlayerDeathEvent.class)) {
 			Skript.error("The keep inventory/experience effect can't be used outside of a death event");
 			return false;
 		}

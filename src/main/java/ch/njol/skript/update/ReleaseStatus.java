@@ -43,10 +43,5 @@ public enum ReleaseStatus {
 	 * Updates have been checked, but this release was not found at all.
 	 * It might be not yet published.
 	 */
-	CUSTOM,
-
-	/**
-	 * Running a developer/nightly build, updates will not be checked.
-	 */
-	DEVELOPMENT
+	CUSTOM
 }

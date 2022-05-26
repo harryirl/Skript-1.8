@@ -23,6 +23,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
@@ -64,12 +65,12 @@ public class EffCancelDrops extends Effect {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		cancelItems = parseResult.mark == 0 || parseResult.mark == 1;
 		cancelExps = parseResult.mark == 0 || parseResult.mark == 2;
-		if (getParser().isCurrentEvent(BlockBreakEvent.class)) {
+		if (ScriptLoader.isCurrentEvent(BlockBreakEvent.class)) {
 			if (cancelItems && !CAN_CANCEL_BLOCK_ITEM_DROPS) {
 				Skript.error("Cancelling drops of items in a block break event requires Minecraft 1.12 or newer");
 				return false;
 			}
-		} else if (!getParser().isCurrentEvent(EntityDeathEvent.class)) {
+		} else if (!ScriptLoader.isCurrentEvent(EntityDeathEvent.class)) {
 			Skript.error("The cancel drops effect can't be used outside of a death" +
 				(CAN_CANCEL_BLOCK_ITEM_DROPS ? " or block break" : "") + " event");
 			return false;

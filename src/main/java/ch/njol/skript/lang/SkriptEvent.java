@@ -19,13 +19,10 @@
 package ch.njol.skript.lang;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.events.EvtClick;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
-import org.bukkit.event.EventPriority;
-import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * A SkriptEvent is like a condition. It is called when any of the registered events occurs.
@@ -39,9 +36,6 @@ import org.eclipse.jdt.annotation.Nullable;
  * @see Skript#registerEvent(String, Class, Class[], String...)
  */
 public abstract class SkriptEvent implements SyntaxElement, Debuggable {
-	
-	@Nullable
-	EventPriority eventPriority;
 	
 	@Override
 	public final boolean init(final ch.njol.skript.lang.Expression<?>[] vars, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
@@ -76,14 +70,6 @@ public abstract class SkriptEvent implements SyntaxElement, Debuggable {
 	@Override
 	public String toString() {
 		return toString(null, false);
-	}
-	
-	/**
-	 * @return the {@link EventPriority} to be used for this event.
-	 * Defined by the user-specified priority, or otherwise the default event priority.
-	 */
-	public EventPriority getEventPriority() {
-		return eventPriority != null ? eventPriority : SkriptConfig.defaultEventPriority.value();
 	}
 	
 }
